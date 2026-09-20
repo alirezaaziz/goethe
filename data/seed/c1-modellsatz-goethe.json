@@ -1,0 +1,457 @@
+{
+  "id": "c1-modellsatz-goethe",
+  "title": "Modellsatz Goethe-Zertifikat C1 (offiziell)",
+  "description": "Der offizielle Modellsatz des Goethe-Instituts, 2. Auflage. Module Lesen, Schreiben und Sprechen.",
+  "lesen": {
+    "durationMinutes": 65,
+    "parts": [
+      {
+        "type": "mc-gap",
+        "teil": 1,
+        "suggestedMinutes": 10,
+        "instruction": "Sie lesen in einer Zeitschrift einen Artikel über ein Unternehmen in der Tourismusbranche. Wählen Sie für jede Lücke die richtige Lösung.",
+        "text": {
+          "title": "JUNGE UNTERNEHMEN DER TOURISMUSBRANCHE",
+          "subtitle": "StadtTours",
+          "intro": "In Deutschland werden jeden Tag neue Start-ups gegründet. Eines von ihnen wollen wir heute vorstellen: StadtTours.",
+          "paragraphs": [
+            "Der Name ist Programm – das Unternehmen hat sich auf Reisen spezialisiert, für die man nicht lange in die Ferne schweifen muss. 20 Teams in ganz Deutschland zeigen ausgewählte Städte aus ungewohnten, spannenden Perspektiven. Die Reisenden werden [[0]] eingeladen, die besuchte Stadt und ihre Umgebung zu „entziffern“, und kommen darüber ins Gespräch. Auf ihren Entdeckungsreisen besichtigen sie nicht nur touristische Attraktionen, sondern [[1]] auch Geschichten aus dem Alltagsleben der jeweiligen Stadt. Die teilnehmenden Besucherinnen und Besucher erhalten Einblicke in kulturelle, politische und wirtschaftliche Zusammenhänge und bekommen so ein facettenreiches Bild von historischen Entwicklungen und Bräuchen der Stadt, die z. B. auch [[2]] Fotos oder Anekdoten veranschaulicht werden. Dabei werden die Interessen der Gäste berücksichtigt: Ob nun in Millionenstädten wie Berlin, Hamburg und München oder in einer der anderen 17 Städte – die Programme passen sich den Wünschen der Gäste an, nicht [[3]].",
+            "Das Start-up hat Standards entwickelt, [[4]] in allen angebotenen Städten eine hohe Qualität der Programme gewährleisten sollen. Ob Historiker*innen, Geograf*innen, Journalist*innen, Schauspieler*innen oder Schriftsteller*innen: All diese Expertinnen und Experten bringen nicht nur Fachkompetenz, sondern darüber hinaus auch Erfahrung [[5]] Umgang mit Gruppen mit. Von Anfang an praktiziert das junge Unternehmen die Idee des sanften Tourismus. Seine Gründer waren [[6]] Wegbereiter für umwelt- und sozialverträgliches Reisen sowie für zeitgemäßen und nachhaltigen Tourismus.",
+            "Die Angebote der einzelnen Reise-Teams [[7]] städtetouristische Ansprüche mit Niveau: Stadtspaziergänge mit App zum selbstständigen Erkunden, Stadtspiele als Wettbewerbe für größere Gruppen, lebendige Lesungen zur Stadtgeschichte, Rundfahrten mit E-Bikes und E-Rollern oder mit dem „normalen“ Fahrrad – im vielfältigen Angebot ist alles, was Spaß verspricht. Jede Stadt hat ihren ganz eigenen Charme. [[8]] hat jedes StadtTours-Team überall einzigartige Programme für seine Besucherinnen und Besucher vorbereitet. Die Reisen eignen sich für Gruppen jeden Alters, besonders jedoch für Schulklassen."
+          ]
+        },
+        "example": {
+          "options": {
+            "a": "dafür",
+            "b": "damit",
+            "c": "darum",
+            "d": "dazu"
+          },
+          "answer": "d"
+        },
+        "items": [
+          {
+            "id": 1,
+            "options": {
+              "a": "bekommen",
+              "b": "erfahren",
+              "c": "lernen",
+              "d": "wissen"
+            },
+            "answer": "b"
+          },
+          {
+            "id": 2,
+            "options": {
+              "a": "als Anlage zu",
+              "b": "in Einklang mit",
+              "c": "im Einverständnis mit",
+              "d": "mithilfe von"
+            },
+            "answer": "d"
+          },
+          {
+            "id": 3,
+            "options": {
+              "a": "umsonst",
+              "b": "ungefähr",
+              "c": "ungewöhnlich",
+              "d": "umgekehrt"
+            },
+            "answer": "d"
+          },
+          {
+            "id": 4,
+            "options": {
+              "a": "das",
+              "b": "die",
+              "c": "für die",
+              "d": "mit denen"
+            },
+            "answer": "b"
+          },
+          {
+            "id": 5,
+            "options": {
+              "a": "bei",
+              "b": "im",
+              "c": "in",
+              "d": "von"
+            },
+            "answer": "b"
+          },
+          {
+            "id": 6,
+            "options": {
+              "a": "daraus",
+              "b": "davon",
+              "c": "gegenüber",
+              "d": "somit"
+            },
+            "answer": "d"
+          },
+          {
+            "id": 7,
+            "options": {
+              "a": "erfüllen",
+              "b": "ergänzen",
+              "c": "erledigen",
+              "d": "erzeugen"
+            },
+            "answer": "a"
+          },
+          {
+            "id": 8,
+            "options": {
+              "a": "Dennoch",
+              "b": "Entsprechend",
+              "c": "Nachdem",
+              "d": "Zunehmend"
+            },
+            "answer": "b"
+          }
+        ]
+      },
+      {
+        "type": "mc-questions",
+        "teil": 2,
+        "suggestedMinutes": 20,
+        "instruction": "Sie lesen im Internet einen Artikel über eine Studie zur Handynutzung in Familien. Wählen Sie bei jeder Aufgabe die richtige Lösung.",
+        "text": {
+          "title": "FAMILIEN IM FOKUS",
+          "subtitle": "Der elterliche Handykonsum und seine Folgen",
+          "paragraphs": [
+            "Laut einer jüngst in einer englischsprachigen Zeitschrift veröffentlichten Studie verursacht die häufige, intensive Beschäftigung vieler Eltern mit dem Handy bei ihren Kindern Frust, Wut, Stress sowie Verhaltensauffälligkeiten. Dennoch ist es nach wie vor die Internetnutzung der Sprösslinge, die ihre Zeit am Handy oder Tablet mit Spielen und Serien verbringen, die zu Diskussionen im Familienkreis führt. Wenn Eltern dasselbe tun, scheint ihnen das jedoch meist kein Grund zur Besorgnis zu sein, sondern gilt als Teil ihrer individuellen Freiheit. Als Erwachsene wissen sie schließlich selbst am besten, was sie gerade brauchen, um glücklich und gesund zu bleiben, so argumentieren sie zumindest oft selbst.",
+            "Es besteht allerdings kein Zweifel daran, dass in Familien mit Eltern, die ihr Smartphone nur schwer zur Seite legen können, die Kommunikation unter den Familienmitgliedern leidet: Das Handy wird zum Kommunikationsmittel Nummer eins, der ausführliche Eltern-Kind-Austausch fehlt. Diese ungesunden Auswirkungen auf die sozialen Kontakte in der Familie haben in vielen Fällen eine gestörte Sprachentwicklung der Heranwachsenden zur Folge, die sich auch in schlechteren Noten widerspiegelt. Die Unterstützung bei den Hausaufgaben bleibt notgedrungen unzureichend, wenn die Eltern währenddessen mit dem Handy spielen. Fordern die Kinder dann Beachtung ein, reagieren zahlreiche Eltern eher verärgert oder gereizt.",
+            "Das Forschungsteam der Studie hat in einem Langzeitexperiment untersucht, ob Kinder in Konkurrenz mit den Smartphones ihrer Eltern stehen. Dafür baten die Wissenschaftlerinnen und Wissenschaftler 195 Elternpaare mit mindestens einem Kind unter fünf Jahren darum, sechs Monate lang Auskunft über ihre tägliche Smartphone-Nutzung zu geben. Zugleich wurden sie befragt, wie sich das Verhalten der Kinder während des Beobachtungszeitraums entwickelt hat. Lenkten sich Eltern wiederholt mit dem Handy ab, verhielten sich ihre Kinder häufiger auffällig, das heißt, sie quengelten und jammerten viel oder bekamen unverhältnismäßig starke Wutausbrüche. Sobald die Unterfünfjährigen jedoch das Handy selbst als Spielzeug erhielten, wurden sie ruhig und machten einen zufriedenen Eindruck.",
+            "Die Dynamik solcher Situationen gleiche einem Teufelskreis, argumentieren die Autorinnen und Autoren der Studie. Einige an der Untersuchung beteiligte Eltern räumten ein, dass sie besonders in Situationen nach dem Smartphone griffen, in denen sie sich von ihren Kindern gestresst fühlten. Das Handy biete ihnen eine Art Flucht aus dem Chaos, in das die Betreuung von Kindern ausarten kann. Sogar die Beschäftigung mit Problemen am Arbeitsplatz wurde in diesem Kontext als entspannende Tätigkeit empfunden.",
+            "Kinder, auch das hat die Studie gezeigt, reagieren sensibel auf den Verlust von Aufmerksamkeit seitens ihrer Eltern. Die Expertinnen und Experten schlussfolgern: Wer sich weniger auf seine Kinder einlässt, bekommt auch schwerer Zugang zu ihnen. Jedes Familienmitglied lebt dann letztendlich in seiner eigenen Welt und nimmt nur noch seine eigene Realität wahr.",
+            "Die Expertinnen und Experten geben Empfehlungen, wie sich wirksam Abhilfe schaffen lässt. Natürlich dürfen sich Eltern auch mal ausklinken, bevor sie sich zwischen den Ansprüchen der Familie zerreiben. Auch Mütter und Väter sind nur Menschen, und das natürliche Bedürfnis nach Zerstreuung verschwindet nicht mit dem Kinderglück. Hier kann das Telefon durchaus helfen. Doch darf nicht vergessen werden, im Familienalltag handyfreie Zeiten und Rituale zu schaffen. Bei gemeinsamen Mahlzeiten, beim Spieleabend oder dem Zubettgehen hat das Handy nichts zu suchen.",
+            "Aktuell liegt auch das Handy-Fasten im Trend, das sich gemeinsam mit den Kindern anwenden lässt. Auf diese Weise hat die ganze Familie etwas davon: Ob einen Monat, eine Woche oder drei Tage – der freiwillige Verzicht bringt die Menschen wieder ohne digitale Ablenkung an einem Tisch zusammen. Und wo vorher Schweigen war, könnte schon bald ein reger Gedankenaustausch entstehen. Ohne Handy können Eltern auch ihre Freizeit wieder bewusster mit den Kindern verbringen und gemeinsame Unternehmungen planen. Je nach den Vorlieben sollte eine Aktivität gewählt werden, die alle Familienmitglieder einbindet. Falls dennoch Kompromisse notwendig sind, sollte jede und jeder zugestimmt haben. Um eine passende Aktivität zu finden, können auch der Freundes- oder Bekanntenkreis oder entsprechende Portale im Internet befragt werden. Die einen entscheiden sich dann für das Anlegen eines Gemüsebeets im Gemeinschaftsgarten, die anderen für eine Schnitzeljagd durch die Stadt – alles ist erlaubt, Hauptsache, es macht Spaß und das Handy wird nur für Fotos aus der Tasche genommen."
+          ]
+        },
+        "items": [
+          {
+            "id": 9,
+            "question": "Innerhalb der Familien wird oft thematisiert, …",
+            "options": {
+              "a": "ob sich Kinder zu viel online beschäftigen.",
+              "b": "wie Kinder gefördert werden können.",
+              "c": "wie stressig die Telefonnutzung der Eltern für Kinder ist."
+            },
+            "answer": "a"
+          },
+          {
+            "id": 10,
+            "question": "Welche Folgen hat der Handykonsum der Eltern bei den Kindern?",
+            "options": {
+              "a": "Aggressives Benehmen in der Familie.",
+              "b": "Nachlassen der schulischen Leistung.",
+              "c": "Unkonzentrierte Erledigung von Hausaufgaben."
+            },
+            "answer": "b"
+          },
+          {
+            "id": 11,
+            "question": "Was wurde in einem Experiment mit Elternpaaren untersucht?",
+            "options": {
+              "a": "Auswirkungen des Handykonsums von Eltern.",
+              "b": "Folgen der regelmäßigen Handynutzung von Kindern.",
+              "c": "Verhaltensauffälligkeiten bei Kindern."
+            },
+            "answer": "a"
+          },
+          {
+            "id": 12,
+            "question": "Laut den Wissenschaftlerinnen und Wissenschaftlern hilft das Handy den Eltern …",
+            "options": {
+              "a": "Anspannung abzubauen.",
+              "b": "chaotischen Zuständen vorzubeugen.",
+              "c": "Probleme im Beruf zu lösen."
+            },
+            "answer": "a"
+          },
+          {
+            "id": 13,
+            "question": "Die Beziehung zwischen Eltern und Kindern leidet unter …",
+            "options": {
+              "a": "dem Realitätsverlust der Eltern.",
+              "b": "der kindlichen Sensibilität.",
+              "c": "verminderter elterlicher Zuneigung."
+            },
+            "answer": "c"
+          },
+          {
+            "id": 14,
+            "question": "Den Eltern wird empfohlen, …",
+            "options": {
+              "a": "in der Wohnung handyfreie Zonen einzurichten.",
+              "b": "die Handynutzung bewusst zu reglementieren.",
+              "c": "mit ihren Kindern regelmäßig aufs Handy zu verzichten."
+            },
+            "answer": "b"
+          },
+          {
+            "id": 15,
+            "question": "Bei der Freizeitgestaltung muss berücksichtigt werden, dass …",
+            "options": {
+              "a": "Aktivitäten frühzeitig geplant werden.",
+              "b": "alle Mitspracherecht bei der Entscheidung haben.",
+              "c": "sie leichter fällt, wenn Freunde daran teilnehmen."
+            },
+            "answer": "b"
+          }
+        ]
+      },
+      {
+        "type": "sentence-insert",
+        "teil": 3,
+        "suggestedMinutes": 20,
+        "instruction": "Sie lesen in einer populärwissenschaftlichen Zeitschrift einen Kommentar. Welche Sätze passen in die Lücken? Zwei Sätze passen nicht.",
+        "text": {
+          "title": "„Manager-Müdigkeit“ – eine bedrohliche Entwicklung in Führungsetagen?",
+          "paragraphs": [
+            "Landauf, landab werden derzeit zahlreiche Unternehmen mit einem neuen Phänomen konfrontiert: „Manager-Müdigkeit“. Das mag recht harmlos klingen, bezeichnet jedoch für viele Unternehmen einen bedenklichen Trend. [[0]] Konkret bedeutet es, dass weniger als 10 % der Beschäftigten auf einer Führungsposition arbeiten möchten.",
+            "Das Problem ist weit größer, als erste Umfragen erwarten ließen. In den Chefetagen fehlt nicht nur der Nachwuchs. Zunehmendes Desinteresse an Führungsposten ist auch bei jenen festzustellen, die bereits im Management tätig sind. [[16]] Mehr als die Hälfte von ihnen fühlt sich beispielsweise gestresst oder empfindet die Anforderungen der Berufswelt als stetig wachsend. Ein Drittel der Managerinnen und Manager ist von den Aufgaben überfordert und würde es sogar bevorzugen, nicht mehr Teil der Arbeitswelt zu sein.",
+            "Abstrahiert man vom Einzelschicksal und stellt sich die Folgen dieser neuen Einstellung für Unternehmen – egal welcher Größe – vor, dann kann man ermessen, was für ein eklatantes Problem da auf unsere Wirtschaft zukommt. Denn ohne Führungskräfte sind Unternehmen im wahrsten Sinne des Wortes „führungslos“. [[17]] Wer plant, wer konzipiert, wer übernimmt die Verantwortung? Wenn diese Positionen nicht mehr besetzt werden können, wird nicht nur der Profit der Firma zurückgehen, sondern alle Mitarbeitenden werden unter den Folgen zu leiden haben.",
+            "Die interessante Frage lautet: Wo liegen die Ursachen für diese Entwicklung? Früher träumten zahlreiche zielstrebige Jura- oder BWL-Studierende von einer steilen Karriere in Unternehmen. [[18]] Sicherlich sind die Ursachen für diese tiefgreifende Veränderung vielschichtig, jedoch war der Prozess kontinuierlich und absehbar. Ein wichtiger Grund könnte der moderne Erziehungsstil sein. Obwohl die Eltern der heutigen Jugendlichen lange nach den entbehrungsreichen Kriegsjahren aufgewachsen sind, konnten sie der Versuchung nicht widerstehen, ihre Kinder zu verwöhnen. Die Kinder erhalten viel und das meist ohne große Gegenleistung. [[19]] Warum sollten sie Tätigkeiten auf sich nehmen, die sie unangenehm oder anstrengend finden? Diese Einstellung der jungen Generation hat großen Einfluss auf ihren beruflichen Werdegang.",
+            "Im Berufsleben der Kinder treten Eltern in den Hintergrund. Ganz im Gegensatz dazu steht die Schullaufbahn, in deren Verlauf sie ihre Söhne und Töchter durch zahlreiche Lehrergespräche und die Finanzierung von Hausaufgabenhilfe oder Nachhilfestunden unterstützen können. [[20]] Jedoch bleibt die Frage offen, ob die Kinder nicht auch ohne ein solches „Rundum-sorglos-Paket“ erfolgreich den Schulabschluss schaffen und später davon profitieren würden. Übertriebene Förderung in der Schule kann im Arbeitsleben nämlich ebenfalls als Karrierehindernis wirken. So setzen einige der Geförderten andere Prioritäten im Leben. [[21]] Denn Freizeit geht für sie vor Arbeitsverpflichtungen – man kümmert sich lieber um sich selbst als um das Firmenwohl.",
+            "Für jeden individuell mag dies eine kluge Entscheidung sein, als genereller Trend ist es jedoch problematisch. Verschärft wird die negative Entwicklung durch die schon ermüdeten Managerinnen und Manager, die aktuell Führungspositionen innehaben. [[22]] So äußern sie mehr oder weniger unverhohlen: Sollen doch die Jungen übernehmen und die aktuellen Herausforderungen wie Globalisierung und Digitalisierung meistern! Damit liegen sie jedoch falsch – wir benötigen eine gemeinsame Strategie und den Einsatz aller Altersklassen. Es liegt doch auf der Hand, dass die Probleme des 21. Jahrhunderts mit viel Energie und neuen Methoden gelöst werden müssen. [[23]] Da dies keine Option sein kann, benötigen wir auch einen neuen Führungsstil, der wieder Spaß macht – dann findet sich auch das Personal dafür."
+          ]
+        },
+        "example": {
+          "sentence": "Und was genau ist damit gemeint?"
+        },
+        "bank": [
+          {
+            "key": "a",
+            "text": "Heute empfinden die meisten die Anforderungen dieses Wegs als Zumutung."
+          },
+          {
+            "key": "b",
+            "text": "So lernen sie nicht, dass sich der Einsatz für ein bestimmtes Ziel lohnt."
+          },
+          {
+            "key": "c",
+            "text": "Diese Maßnahmen ebnen zunächst den Weg für den Erfolg."
+          },
+          {
+            "key": "d",
+            "text": "Trotz der Lösungsansätze sinkt die Attraktivität dieses Tätigkeitsbereichs."
+          },
+          {
+            "key": "e",
+            "text": "Als Folge ihrer Berufstätigkeit leiden sie unter verschiedenen Symptomen."
+          },
+          {
+            "key": "f",
+            "text": "Den eigenen Nachwuchs schützen zu wollen, kann sich nachteilig auswirken."
+          },
+          {
+            "key": "g",
+            "text": "Ein Managerposten reizt sie nicht, da er keine angemessene Balance von Arbeit und Vergnügen zulässt."
+          },
+          {
+            "key": "h",
+            "text": "Sie sind zufrieden mit ihrem Einsatz in den vergangenen Jahrzehnten und träumen von Frührente."
+          },
+          {
+            "key": "i",
+            "text": "Das liegt an der essenziellen Funktion, die Managerinnen und Manager für den Betrieb haben."
+          },
+          {
+            "key": "j",
+            "text": "Denn wenn wir in den bisherigen Mustern verhaftet bleiben, werden wir scheitern."
+          }
+        ],
+        "items": [
+          {
+            "id": 16,
+            "answer": "e"
+          },
+          {
+            "id": 17,
+            "answer": "i"
+          },
+          {
+            "id": 18,
+            "answer": "a"
+          },
+          {
+            "id": 19,
+            "answer": "b"
+          },
+          {
+            "id": 20,
+            "answer": "c"
+          },
+          {
+            "id": 21,
+            "answer": "g"
+          },
+          {
+            "id": 22,
+            "answer": "h"
+          },
+          {
+            "id": 23,
+            "answer": "j"
+          }
+        ]
+      },
+      {
+        "type": "match-source",
+        "teil": 4,
+        "suggestedMinutes": 15,
+        "instruction": "Sie lesen in einer Fachzeitschrift Beiträge von Wissenschaftlerinnen und Wissenschaftlern. Wählen Sie bei jeder Aussage: Wer äußert das? Zwei Aussagen passen nicht. Markieren Sie in diesem Fall 0.",
+        "heading": "ZUKUNFTSFRAGEN UNSERER GESELLSCHAFT:",
+        "subheading": "Privatheit in Zeiten des Internets",
+        "sources": [
+          {
+            "key": "a",
+            "name": "Hella Brückner, Professorin für Wirtschaftspsychologie",
+            "text": "Wer ist denn nicht froh, dass es das Internet gibt? Es ist doch eine große Erleichterung, mit einem Klick Tickets oder Waren kaufen oder die Lieblingsserie jederzeit und ohne lästige Werbung sehen zu können. Messenger-Dienste sind aus dem Alltag nicht mehr wegzudenken, über eine Musik-App wird die aktuelle Lieblingsplaylist geteilt und dank einer lustigen Spiele-App kann man sich auch die Wartezeit an der Bushaltestelle angenehm vertreiben. Aber das Ganze hat natürlich seine Schattenseiten. Bei der Nutzung des Internets entsteht, von den meisten völlig unbemerkt, eine Zweckgemeinschaft zwischen dem privaten Nutzer oder der Nutzerin und diversen Firmen. Man erhält nichts umsonst, auch wenn es so aussieht, sondern bezahlt mit seinen Daten. Die digitalen Medien können unsere Lebensqualität fördern, das steht außer Frage. Doch nur der bewusste Umgang damit vermag den Transfer persönlicher Daten in Grenzen zu halten. Denn je selbstverständlicher das Datensammeln im Netzalltag ist, desto mehr verschwimmen die Grenzen des Privaten und desto mehr schwindet auch das Bewusstsein für einen möglichen Verlust."
+          },
+          {
+            "key": "b",
+            "name": "Benedikt Janssen, Direktor des Instituts für Wirtschaftsinformatik",
+            "text": "Das Internet hat nicht nur Vorteile, darüber sollte man sich im Klaren sein, wenn man online einkauft oder den nächsten Urlaub über eine Webseite bucht. Täglich werden kaum vorstellbare Massen an Daten gesammelt, analysiert und für personalisierte Vertriebsaktionen verwertet. Das geht auf Kosten der Kundinnen und Kunden, denn deren Gewohnheiten, Vorlieben, Träume und Ängste sind im ökonomischen Sinne transparent und dadurch quantifizierbar geworden. Erstaunlicherweise ist das den meisten Konsumentinnen und Konsumenten ziemlich egal. Es gibt sogar einen deutlichen Unterschied zwischen Intention und realem Handeln. Obgleich sie in Umfragen beteuern, zur Preisgabe ihrer Daten nicht bereit zu sein, sieht die Sache anders aus, sobald man ihnen beim Einkauf ein paar Bonuspunkte anbietet. Meiner Ansicht nach sollten die Konsumentinnen und Konsumenten darüber aufgeklärt werden, welchen Zwecken sie ungewollt durch die Teilnahme beispielsweise an Rabattprogrammen dienen."
+          },
+          {
+            "key": "c",
+            "name": "Leopold Nowak, Professor für Öffentliches Recht",
+            "text": "Die Lebenswirklichkeit vieler Menschen verlagert sich mehr und mehr in die digitale Welt. Unsere Persönlichkeitsrechte müssen daher besser gesetzlich verankert werden. Hier besteht ein massiver Reformbedarf. Es geht darum, Daten und damit auch die Identität der Bürgerinnen und Bürger besser zu schützen. Denn man muss sich klar machen: Viele Menschen geben überhaupt nicht Acht darauf, wohin ihre Daten schließlich wandern, und ignorieren das Risiko, dass diese missbraucht werden könnten. Das Bundeskriminalamt veröffentlichte jüngst eine Studie, die zeigt, dass Kriminelle mit falschen Identitäten immer öfter an das Geld argloser Internetnutzerinnen und -nutzer gelangen. Den Kopf in den Sand zu stecken, ist also für Konsumentinnen und Konsumenten keine Lösung. Die Politik wird langsam aktiv und drängt Unternehmen dazu, bei ihrem Online-Angebot effektive Sicherheitsvorkehrungen zu treffen. Das ist dringend nötig. Und endlich ein wichtiger Schritt in die richtige Richtung."
+          }
+        ],
+        "example": {
+          "statement": "Das Internet bietet viele Vorteile, die gern genutzt werden.",
+          "answer": "a"
+        },
+        "items": [
+          {
+            "id": 24,
+            "statement": "Angriffe auf sensible Daten verursachen zunehmend finanzielle Verluste.",
+            "answer": "c"
+          },
+          {
+            "id": 25,
+            "statement": "Reflektiertes Nutzerverhalten kann dazu beitragen, die Verbreitung von Daten einzuschränken.",
+            "answer": "a"
+          },
+          {
+            "id": 26,
+            "statement": "Unternehmen, die nicht ausreichend für Datenschutz sorgen, werden Kundinnen und Kunden verlieren.",
+            "answer": "0"
+          },
+          {
+            "id": 27,
+            "statement": "Dank immenser Datenmengen können Unternehmen individuelle Kundenangebote erstellen.",
+            "answer": "b"
+          },
+          {
+            "id": 28,
+            "statement": "Inhaber von Internetseiten wollen effizient zum Schutz der Bürgerinnen und Bürger beitragen.",
+            "answer": "0"
+          },
+          {
+            "id": 29,
+            "statement": "Trotz gegenteiliger Äußerungen gehen Nutzerinnen und Nutzer sorglos mit persönlichen Angaben um.",
+            "answer": "b"
+          },
+          {
+            "id": 30,
+            "statement": "Kostenlose Dienstleistungen zielen auf die Gewinnung persönlicher Daten.",
+            "answer": "a"
+          }
+        ]
+      }
+    ]
+  },
+  "schreiben": {
+    "durationMinutes": 75,
+    "parts": [
+      {
+        "teil": 1,
+        "suggestedMinutes": 50,
+        "instruction": "Für das Internetforum Karriere & Beruf verfassen Sie einen Diskussionsbeitrag zu diesem Thema:",
+        "topicTitle": "Studieren – aber was?",
+        "topicSubtitle": "Für welches Studienfach sollte man sich entscheiden?",
+        "bullets": [
+          "Erklären Sie, nach welchen Kriterien sich die Wahl des Studienfachs richten sollte.",
+          "Argumentieren Sie anhand eines Beispiels für ein Studienfach.",
+          "Nennen Sie Gründe, die gegen ein Studium sprechen könnten.",
+          "Erläutern Sie eine Alternative zum Studium."
+        ],
+        "wordCount": 230,
+        "sampleAnswer": "Heute wird kontrovers darüber diskutiert, was für Kriterien Schulabgängerinnen und Schulabgänger berücksichtigen sollten, um die richtige Entscheidung in Bezug auf ihre Studienwahl zu treffen. Einerseits vertreten viele den Standpunkt, man sollte vor allem auf die Arbeitsmöglichkeiten des gewünschten Studiengangs achten. Andererseits sind viele Menschen der festen Überzeugung, dass das Wichtigste dabei ist, das lieben, was man in seinem Leben ausüben wird. Meiner Ansicht nach sind beide Kriterien entscheidend bei der Wahl, aber auch die wirtschaftliche Lage der Person, die Situation in dem Land, und die eigenen Fähigkeiten spielen eine wichtige Rolle darin. In Kolumbien, zum Beispiel, liegt die gegenwärtige Gesellschaft mehr Wert auf Studiengänge im Bereich der Naturwissenschaften, weswegen die im geisteswissenschaftlichen Bereich unterschätzt und weniger unterstützt werden. Aus diesem Grund ist es häufig so, dass Lehrer ein geringes Einkommen bekommen und es für sie und für ausgebildete Menschen in Philosophie, Soziologie, Geschichte und Sprachwissenschaft erheblich schwierig ist, eine gute Arbeitsstelle zu finden, die ihnen akzeptable Bedingungen anbietet, selbst wenn sie über außergewöhnliche Fähigkeiten verfügen und die Wille haben, so gut wie möglich zu arbeiten.\n\nEin weiterer, noch wichtiger Aspekt ist die wirtschafliche Situation. Manche Studiengänge sind zu teuer und viele Menschen können sich daher nicht leisten, die zu studieren. Nichtsdestoweniger gibt es heute andere Ausbildungsmöglichkeiten, die günstiger sind und eine gute Ausbildung bieten: In Kolumbien kann man beispielsweise in der Bildungseinrichtung „SENA“ studieren und ein Diplom in einem praktischen Bereich bekommen, der gute Arbeitsmöglichkeiten hat.\n\nAbschließend lässt sich sagen, außer der eigenen Vorliebe und der Arbeitsmöglichkeiten des Studiums, sind andere Aspekte auch zu achten.\n\nLaura"
+      },
+      {
+        "teil": 2,
+        "suggestedMinutes": 25,
+        "instruction": "Während Ihres Urlaubs ist Ihre Firma in ein anderes Gebäude umgezogen. Bei Ihrer Rückkehr stellen Sie überrascht fest, dass Sie nicht mehr allein, sondern zusammen mit sechs Kolleginnen und Kollegen in einem Raum sitzen. Schreiben Sie eine Beschwerde an Ihre Vorgesetzte, Frau Grimm.",
+        "bullets": [
+          "Eröffnen Sie Ihr Schreiben höflich, indem Sie Verständnis für Sachzwänge zeigen.",
+          "Nennen Sie Tätigkeiten, die durch den neuen Platz erschwert werden.",
+          "Beschreiben Sie Arbeitsbedingungen, die für Sie akzeptabel wären.",
+          "Machen Sie einen Kompromissvorschlag."
+        ],
+        "wordCount": 120,
+        "sampleAnswer": "Sehr geehrte Frau Grimm,\n\nmit meinem Schreiben möchte ich auf das Thema Arbeitsbedingungen nach dem Umzug eingehen. Mögen Sie sich auf unser Gespräch kurz vor meinem Urlaub erinnern, in dem Sie mir im neuen Gebäude ein Büro für zwei Personen in Aussicht gestellt haben. Nach meiner Rückkehr habe ich festgestellt, dass ich den Raum noch mit sechs Kolleginnen und Kollegen zu teilen habe, die teilweise für den Verkauf in unserer Firma tätig sind. Als Einkaufsleiterin verhandle ich mit den Lieferanten nicht nur schriftlich per mail, sondern auch telefonisch oder per Skype. Es ist offenbar nicht im Interesse des Unternehmens, wenn sensible Daten wie Einkaufspreise bzw. -bedingungen an Mitarbeiter gelangen, die keinen Zugang zu solchen Daten haben sollten. Ich benötige einen Arbeitsplatz, der Vertraulichkeit gewährleisten kann. Wenn die neuen Räumlichkeiten kein separates Büro anbieten können, schlage ich vor, eine leichte Modulwand zu errichten, um sowohl mich, als auch meine Kollegin im Einkaufsbereich Frau Schneider abzugrenzen. Für einen Zusammenbau braucht man keine Bauarbeiter, die Leistungen sind im Preis für leichte Modulwände bereits enthalten. Ungefähr belaufen sich die Kosten auf 100,00 Euro.\n\nHoffe auf Ihr Verständnis.\n\nMit freundlichen Grüßen\n\nNataliya Brahms"
+      }
+    ]
+  },
+  "sprechen": {
+    "preparationMinutes": 20,
+    "parts": [
+      {
+        "type": "vortrag",
+        "teil": 1,
+        "durationMinutes": 7,
+        "instruction": "Sie nehmen an einem Seminar zu aktuellen Fragen teil und halten einen kurzen Vortrag zu dem von Ihnen gewählten Thema. Ihre Gesprächspartnerinnen/Gesprächspartner hören zu und stellen Ihnen anschließend Fragen dazu. Gehen Sie auf alle vier Punkte ein und achten Sie darauf, Ihren Vortrag gut zu strukturieren. Sprechen Sie circa 5 Minuten und beantworten Sie danach Fragen.",
+        "topics": [
+          {
+            "title": "Sollten Schülerinnen und Schüler für Klimaschutzdemonstrationen der Schule fernbleiben dürfen?",
+            "intro": "In zahlreichen Ländern unterstützen Schülerinnen und Schüler politische Aktionen für den Klimaschutz. Häufig tun sie das ohne Erlaubnis ihrer Eltern und Lehrkräfte. Sie verpassen den Unterricht, um sich beispielsweise auf Protestveranstaltungen für die Umwelt einzusetzen.",
+            "bullets": [
+              "Geben Sie ein Beispiel.",
+              "Argumentieren Sie für oder gegen das Verhalten der Schülerinnen und Schüler.",
+              "Äußern Sie sich: Mit welchen Maßnahmen sollten Eltern und Lehrkräfte reagieren?",
+              "Machen Sie einen Vorschlag, wie Schülerinnen und Schüler ihr Ziel anders erreichen könnten."
+            ]
+          },
+          {
+            "title": "Ist eine geschlechtergerechte Sprache wünschenswert?",
+            "intro": "Die einen antworten: Natürlich! Denn die Frauen sind nicht automatisch immer mit angesprochen. Die anderen sagen: Nein, bloß nicht!",
+            "extra": [
+              "Leser = der/die Leser*in",
+              "Zuhörer = der Zuhörer/die Zuhörerin",
+              "Teilnehmer = der/die Teilnehmende",
+              "Professor = der/die Professor/in"
+            ],
+            "bullets": [
+              "Geben Sie ein Beispiel für eine andere Sprache.",
+              "Argumentieren Sie für oder gegen eine neutrale Sprache.",
+              "Gehen Sie auf die Situation in Ihrem Heimatland oder einem anderen Land ein.",
+              "Schließen Sie mit einem Ausblick in die Zukunft."
+            ]
+          }
+        ]
+      },
+      {
+        "type": "diskussion",
+        "teil": 2,
+        "durationMinutes": 5,
+        "instruction": "Sie diskutieren mit einer Kollegin/einem Kollegen über das Thema Impfpflicht für Kinder. Eine gemeinsame Freundin weigert sich, ihre vierjährige Tochter impfen zu lassen. Dazu haben Sie auch etwas im Internet gelesen. Diskutieren Sie gemeinsam circa 5 Minuten.",
+        "inputTitle": "Impfpflicht",
+        "inputSubtitle": "Masernimpfung für Kindergarten- und Schulkinder",
+        "inputText": "Kinder in Deutschland müssen neuerdings gegen die Kinderkrankheit Masern geimpft sein, um in den Kindergarten oder die Schule eintreten zu dürfen. Ein entsprechendes Gesetz wurde vor Kurzem im Bundestag beschlossen. Im vergangenen Jahr wurden deutschlandweit 543 Masernfälle gemeldet.",
+        "bullets": [
+          "Kommentieren Sie: Was halten Sie von einer Impfpflicht?",
+          "Begründen Sie Ihre Haltung zu einer Impfpflicht.",
+          "Gehen Sie auf die Situation in Ihrem Heimatland oder einem anderen Land ein.",
+          "Einigen Sie sich auf Argumente für ein Gespräch mit Ihrer Freundin."
+        ]
+      }
+    ]
+  }
+}
