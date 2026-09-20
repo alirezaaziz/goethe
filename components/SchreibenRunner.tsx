@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import Timer, { type TimerMode } from "./Timer";
 import { clearStored, useStoredState } from "@/lib/client/storage";
+import { readJson } from "@/lib/client/fetchJson";
 import { useApiSettings } from "@/lib/client/apiKey";
 import { countWords } from "@/lib/scoring";
 import type { Exam, SchreibenFeedback, SchreibenTaskFeedback } from "@/lib/types";
@@ -69,9 +70,9 @@ export default function SchreibenRunner({ exam, mode }: Props) {
           tasks: payload,
         }),
       });
-      const data = await res.json();
+      const data = await readJson<SchreibenFeedback & { error?: string }>(res);
       if (!res.ok) throw new Error(data.error ?? "Die Korrektur ist fehlgeschlagen.");
-      setFeedback(data as SchreibenFeedback);
+      setFeedback(data);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Die Korrektur ist fehlgeschlagen.");
@@ -90,8 +91,8 @@ export default function SchreibenRunner({ exam, mode }: Props) {
       setError("Die Lösungsbeispiele konnten nicht geladen werden.");
       return;
     }
-    const data = await res.json();
-    setSamples(data.schreiben as Record<string, string>);
+    const data = await readJson<{ schreiben: Record<string, string> }>(res);
+    setSamples(data.schreiben);
   }, [exam.id, samples]);
 
   const restart = useCallback(() => {

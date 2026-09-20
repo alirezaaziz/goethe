@@ -18,6 +18,25 @@ function hasBlob() {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 }
 
+/** Fehler, dessen Text direkt in der Oberfläche angezeigt werden darf. */
+export class StorageError extends Error {}
+
+/**
+ * Auf Vercel ist das Dateisystem schreibgeschützt. Ohne verbundenen Blob-Store
+ * würde jeder Schreibvorgang mit EROFS abstürzen – das hier fängt es vorher ab
+ * und erklärt, was zu tun ist.
+ */
+function assertWritable() {
+  if (hasBlob()) return;
+  if (process.env.VERCEL) {
+    throw new StorageError(
+      "Es ist kein Blob-Store mit diesem Vercel-Projekt verbunden, deshalb lässt sich nichts " +
+        "speichern. Im Vercel-Dashboard unter Storage einen Blob-Store anlegen, mit dem Projekt " +
+        "verbinden und anschließend neu deployen.",
+    );
+  }
+}
+
 async function readLocal(): Promise<Exam[]> {
   try {
     return JSON.parse(await fs.readFile(LOCAL_FILE, "utf8")) as Exam[];
@@ -28,8 +47,19 @@ async function readLocal(): Promise<Exam[]> {
 }
 
 async function writeLocal(exams: Exam[]) {
-  await fs.mkdir(path.dirname(LOCAL_FILE), { recursive: true });
-  await fs.writeFile(LOCAL_FILE, JSON.stringify(exams, null, 2), "utf8");
+  try {
+    await fs.mkdir(path.dirname(LOCAL_FILE), { recursive: true });
+    await fs.writeFile(LOCAL_FILE, JSON.stringify(exams, null, 2), "utf8");
+  } catch (err) {
+    const code = (err as NodeJS.ErrnoException).code;
+    if (code === "EROFS" || code === "EACCES" || code === "EPERM") {
+      throw new StorageError(
+        "Das Dateisystem ist schreibgeschützt. Für den Betrieb in der Cloud wird ein " +
+          "Blob-Store benötigt (Vercel-Dashboard → Storage → Blob).",
+      );
+    }
+    throw err;
+  }
 }
 
 async function readBlob(): Promise<Exam[]> {
@@ -65,6 +95,7 @@ export async function getExam(id: string): Promise<Exam | null> {
 }
 
 export async function saveExam(exam: Exam): Promise<Exam> {
+  assertWritable();
   const exams = hasBlob() ? await readBlob() : await readLocal();
   const now = new Date().toISOString();
   const index = exams.findIndex((e) => e.id === exam.id);
@@ -89,6 +120,7 @@ export async function renameExam(oldId: string, exam: Exam): Promise<Exam> {
 }
 
 export async function deleteExam(id: string): Promise<boolean> {
+  assertWritable();
   const exams = hasBlob() ? await readBlob() : await readLocal();
   const next = exams.filter((e) => e.id !== id);
   if (next.length === exams.length) return false;

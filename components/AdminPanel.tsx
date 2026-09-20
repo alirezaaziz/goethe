@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCopy } from "@/lib/client/storage";
+import { readJson } from "@/lib/client/fetchJson";
 import type { Exam } from "@/lib/types";
 
 interface Props {
@@ -104,7 +105,7 @@ function ExamManager({
 
   const reload = useCallback(async () => {
     const res = await fetch("/api/admin/exams");
-    if (res.ok) onChange(((await res.json()) as { exams: Exam[] }).exams);
+    if (res.ok) onChange((await readJson<{ exams: Exam[] }>(res)).exams);
     router.refresh();
   }, [onChange, router]);
 
@@ -142,7 +143,7 @@ function ExamManager({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = (await res.json()) as { error?: string; issues?: string[] };
+      const data = await readJson<{ error?: string; issues?: string[] }>(res);
       if (!res.ok) {
         setError(data.error ?? "Speichern fehlgeschlagen.");
         setIssues(data.issues ?? []);
@@ -151,6 +152,8 @@ function ExamManager({
       setNotice(isNew ? "Modellsatz angelegt." : "Änderungen gespeichert.");
       setEditing(null);
       await reload();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Speichern fehlgeschlagen.");
     } finally {
       setBusy(false);
     }
@@ -159,13 +162,18 @@ function ExamManager({
   async function remove(exam: Exam) {
     if (!confirm(`Modellsatz „${exam.title}“ endgültig löschen? Das lässt sich nicht rückgängig machen.`))
       return;
-    const res = await fetch(`/api/admin/exams/${exam.id}`, { method: "DELETE" });
-    if (!res.ok) {
-      setError(((await res.json()) as { error?: string }).error ?? "Löschen fehlgeschlagen.");
-      return;
+    try {
+      const res = await fetch(`/api/admin/exams/${exam.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await readJson<{ error?: string }>(res);
+        setError(data.error ?? "Löschen fehlgeschlagen.");
+        return;
+      }
+      setNotice(`„${exam.title}“ wurde gelöscht.`);
+      await reload();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Löschen fehlgeschlagen.");
     }
-    setNotice(`„${exam.title}“ wurde gelöscht.`);
-    await reload();
   }
 
   if (editing !== null) {
@@ -307,8 +315,10 @@ function PromptTab({ exams }: { exams: Exam[] }) {
       if (referenceId) url.searchParams.set("referenz", referenceId);
       if (hint.trim()) url.searchParams.set("themen", hint.trim());
       const res = await fetch(url);
-      const data = (await res.json()) as { prompt?: string; error?: string };
+      const data = await readJson<{ prompt?: string; error?: string }>(res);
       setPrompt(data.prompt ?? data.error ?? "");
+    } catch (err) {
+      setPrompt(err instanceof Error ? err.message : "Der Prompt konnte nicht erzeugt werden.");
     } finally {
       setLoading(false);
     }

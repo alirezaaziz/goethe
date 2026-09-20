@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth";
-import { listExams, saveExam } from "@/lib/store";
+import { StorageError, listExams, saveExam } from "@/lib/store";
 import { validateExam } from "@/lib/validate-exam";
 
 export const dynamic = "force-dynamic";
@@ -37,5 +37,16 @@ export async function POST(request: Request) {
     );
   }
 
-  return NextResponse.json({ exam: await saveExam(validation.exam) }, { status: 201 });
+  try {
+    return NextResponse.json({ exam: await saveExam(validation.exam) }, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ error: describeStorageError(error) }, { status: 500 });
+  }
+}
+
+/** Speicherfehler so aufbereiten, dass die Meldung im Adminbereich weiterhilft. */
+function describeStorageError(error: unknown): string {
+  if (error instanceof StorageError) return error.message;
+  const message = error instanceof Error ? error.message : String(error);
+  return `Speichern fehlgeschlagen: ${message}`;
 }

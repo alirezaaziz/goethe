@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth";
-import { deleteExam, getExam, listExams, renameExam } from "@/lib/store";
+import { StorageError, deleteExam, getExam, listExams, renameExam } from "@/lib/store";
 import { validateExam } from "@/lib/validate-exam";
 
 export const dynamic = "force-dynamic";
@@ -47,14 +47,29 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
   }
 
-  return NextResponse.json({ exam: await renameExam(id, validation.exam) });
+  try {
+    return NextResponse.json({ exam: await renameExam(id, validation.exam) });
+  } catch (error) {
+    return NextResponse.json({ error: describeStorageError(error) }, { status: 500 });
+  }
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!(await isAuthenticated())) {
     return NextResponse.json({ error: "Nicht angemeldet." }, { status: 401 });
   }
-  const removed = await deleteExam((await params).id);
-  if (!removed) return NextResponse.json({ error: "Nicht gefunden." }, { status: 404 });
-  return NextResponse.json({ ok: true });
+  try {
+    const removed = await deleteExam((await params).id);
+    if (!removed) return NextResponse.json({ error: "Nicht gefunden." }, { status: 404 });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    return NextResponse.json({ error: describeStorageError(error) }, { status: 500 });
+  }
+}
+
+/** Speicherfehler so aufbereiten, dass die Meldung im Adminbereich weiterhilft. */
+function describeStorageError(error: unknown): string {
+  if (error instanceof StorageError) return error.message;
+  const message = error instanceof Error ? error.message : String(error);
+  return `Speichern fehlgeschlagen: ${message}`;
 }

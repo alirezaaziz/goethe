@@ -5,6 +5,7 @@ import Link from "next/link";
 import ExamTextView from "./ExamTextView";
 import Timer, { type TimerMode } from "./Timer";
 import { clearStored, useStoredState } from "@/lib/client/storage";
+import { readJson } from "@/lib/client/fetchJson";
 import type { Exam, LesenPart } from "@/lib/types";
 import type { LesenResult } from "@/lib/scoring";
 
@@ -63,8 +64,9 @@ export default function LesenRunner({ exam, mode }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ answers }),
       });
-      if (!res.ok) throw new Error((await res.json()).error ?? "Auswertung fehlgeschlagen.");
-      setResult(await res.json());
+      const data = await readJson<LesenResult & { error?: string }>(res);
+      if (!res.ok) throw new Error(data.error ?? "Auswertung fehlgeschlagen.");
+      setResult(data);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Auswertung fehlgeschlagen.");

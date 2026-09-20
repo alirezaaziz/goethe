@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { readJson } from "@/lib/client/fetchJson";
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -20,12 +21,13 @@ export default function AdminLogin() {
         body: JSON.stringify({ password }),
       });
       if (!res.ok) {
-        setError(((await res.json()) as { error?: string }).error ?? "Anmeldung fehlgeschlagen.");
+        const data = await readJson<{ error?: string }>(res);
+        setError(data.error ?? "Anmeldung fehlgeschlagen.");
         return;
       }
       router.refresh();
-    } catch {
-      setError("Anmeldung fehlgeschlagen.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Anmeldung fehlgeschlagen.");
     } finally {
       setBusy(false);
     }
