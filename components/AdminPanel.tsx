@@ -81,8 +81,10 @@ export default function AdminPanel({ initialExams, storage, loadError }: Props) 
         <div className="mb-5 rounded-lg border border-[var(--bad)] bg-[var(--bad-soft)] p-4 text-sm text-[var(--bad)]">
           <p className="font-semibold">Speichern ist derzeit nicht möglich.</p>
           <p className="mt-1.5">
-            In dieser Bereitstellung ist kein Blob-Token angekommen. Ein im Dashboard verbundener
-            Store wirkt erst, nachdem das Projekt neu deployt wurde: Vercel-Dashboard →
+            In dieser Bereitstellung ist kein Zugang zum Blob-Store vorhanden. Erwartet wird
+            entweder <code className="font-mono">BLOB_READ_WRITE_TOKEN</code> oder{" "}
+            <code className="font-mono">BLOB_STORE_ID</code>. Ein im Dashboard verbundener Store
+            wirkt außerdem erst, nachdem das Projekt neu deployt wurde: Vercel-Dashboard →
             Deployments → beim neuesten Eintrag über das Menü „Redeploy“ auswählen.
           </p>
           <p className="mt-1.5">

@@ -19,15 +19,17 @@ export class StorageError extends Error {}
 
 type BlobAccess =
   | { kind: "token"; token: string; via: string }
-  | { kind: "oidc"; via: string };
+  | { kind: "oidc"; storeId: string; via: string };
 
 /**
- * Sucht den Zugang zum Blob-Store.
+ * Sucht den Zugang zum Blob-Store. Vercel kennt zwei Verfahren:
  *
- * Beim Verbinden eines Stores legt Vercel normalerweise BLOB_READ_WRITE_TOKEN an.
- * Wird beim Verbinden ein eigenes Präfix vergeben, heißt die Variable jedoch zum
- * Beispiel GOETHE_BLOB_READ_WRITE_TOKEN – deshalb wird auch danach gesucht.
- * Alternativ authentifiziert das SDK über OIDC, wenn BLOB_STORE_ID gesetzt ist.
+ * 1. Ein statisches Read-Write-Token. Es heißt normalerweise BLOB_READ_WRITE_TOKEN;
+ *    wird beim Verbinden ein eigenes Präfix vergeben, zum Beispiel
+ *    GOETHE_BLOB_READ_WRITE_TOKEN – deshalb wird auch auf die Endung geprüft.
+ * 2. OIDC. Dabei steht nur BLOB_STORE_ID in der Umgebung; das eigentliche Token
+ *    holt sich das SDK pro Anfrage selbst. Es darf deshalb nicht erwartet werden,
+ *    dass VERCEL_OIDC_TOKEN als Umgebungsvariable gesetzt ist.
  */
 function resolveBlob(): BlobAccess | null {
   const direct = process.env.BLOB_READ_WRITE_TOKEN;
@@ -39,9 +41,8 @@ function resolveBlob(): BlobAccess | null {
     }
   }
 
-  if (process.env.BLOB_STORE_ID && process.env.VERCEL_OIDC_TOKEN) {
-    return { kind: "oidc", via: "BLOB_STORE_ID + VERCEL_OIDC_TOKEN" };
-  }
+  const storeId = process.env.BLOB_STORE_ID;
+  if (storeId) return { kind: "oidc", storeId, via: "BLOB_STORE_ID (OIDC)" };
 
   return null;
 }
@@ -50,10 +51,14 @@ function hasBlob() {
   return resolveBlob() !== null;
 }
 
-/** Nur die Optionen, die das SDK zusätzlich braucht – bei OIDC keine. */
-function blobOptions(): { token?: string } {
+/**
+ * Optionen für das SDK. Bei OIDC wird nur die Store-ID mitgegeben; das Token
+ * besorgt sich das SDK pro Anfrage selbst.
+ */
+function blobOptions(): { token?: string; storeId?: string } {
   const access = resolveBlob();
-  return access?.kind === "token" ? { token: access.token } : {};
+  if (!access) return {};
+  return access.kind === "token" ? { token: access.token } : { storeId: access.storeId };
 }
 
 /**
@@ -65,10 +70,10 @@ function assertWritable() {
   if (hasBlob()) return;
   if (process.env.VERCEL) {
     throw new StorageError(
-      "Es ist kein Blob-Token in dieser Bereitstellung angekommen, deshalb lässt sich nichts " +
-        "speichern. Ein verbundener Blob-Store wirkt erst nach einem neuen Deployment: im " +
-        "Vercel-Dashboard unter Deployments das neueste Deployment erneut ausführen " +
-        `(Redeploy). Gefundene Blob-Variablen: ${listBlobEnvNames().join(", ") || "keine"}.`,
+      "In dieser Bereitstellung ist kein Zugang zum Blob-Store vorhanden, deshalb lässt sich " +
+        "nichts speichern. Erwartet wird entweder BLOB_READ_WRITE_TOKEN oder BLOB_STORE_ID. " +
+        "Ein im Dashboard verbundener Store wirkt außerdem erst nach einem neuen Deployment " +
+        `(Redeploy). Gefundene Variablen: ${listBlobEnvNames().join(", ") || "keine"}.`,
     );
   }
 }
