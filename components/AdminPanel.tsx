@@ -7,9 +7,19 @@ import { useCopy } from "@/lib/client/storage";
 import { readJson } from "@/lib/client/fetchJson";
 import type { Exam } from "@/lib/types";
 
+interface StorageInfo {
+  backend: "blob" | "datei";
+  onVercel: boolean;
+  /** Name der Variablen, über die der Blob-Zugang gefunden wurde. */
+  via: string | null;
+  blobEnvNames: string[];
+}
+
 interface Props {
   initialExams: Exam[];
-  backend: "blob" | "datei";
+  storage: StorageInfo;
+  /** Gesetzt, wenn der Speicher nicht gelesen werden konnte. */
+  loadError: string | null;
 }
 
 type Tab = "saetze" | "prompt";
@@ -24,7 +34,7 @@ const TEMPLATE = `{
   "sprechen": { "preparationMinutes": 20, "parts": [] }
 }`;
 
-export default function AdminPanel({ initialExams, backend }: Props) {
+export default function AdminPanel({ initialExams, storage, loadError }: Props) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("saetze");
   const [exams, setExams] = useState(initialExams);
@@ -37,8 +47,11 @@ export default function AdminPanel({ initialExams, backend }: Props) {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Adminbereich</h1>
           <p className="mt-1 text-xs text-[var(--muted)]">
-            Speicherort: {backend === "blob" ? "Vercel Blob" : "lokale Datei .data/exams.json"} ·{" "}
-            {exams.length === 1 ? "1 Modellsatz" : `${exams.length} Modellsätze`}
+            Speicherort:{" "}
+            {storage.backend === "blob"
+              ? `Vercel Blob (über ${storage.via})`
+              : "lokale Datei .data/exams.json"}{" "}
+            · {exams.length === 1 ? "1 Modellsatz" : `${exams.length} Modellsätze`}
           </p>
         </div>
         <button
@@ -52,6 +65,34 @@ export default function AdminPanel({ initialExams, backend }: Props) {
           Abmelden
         </button>
       </header>
+
+      {loadError && (
+        <div className="mb-5 rounded-lg border border-[var(--bad)] bg-[var(--bad-soft)] p-4 text-sm text-[var(--bad)]">
+          <p className="font-semibold">Der Speicher konnte nicht gelesen werden.</p>
+          <p className="mt-1.5">{loadError}</p>
+          <p className="mt-1.5">
+            Solange das so ist, wird nichts gespeichert – damit der vorhandene Bestand nicht
+            versehentlich überschrieben wird.
+          </p>
+        </div>
+      )}
+
+      {storage.onVercel && storage.backend === "datei" && (
+        <div className="mb-5 rounded-lg border border-[var(--bad)] bg-[var(--bad-soft)] p-4 text-sm text-[var(--bad)]">
+          <p className="font-semibold">Speichern ist derzeit nicht möglich.</p>
+          <p className="mt-1.5">
+            In dieser Bereitstellung ist kein Blob-Token angekommen. Ein im Dashboard verbundener
+            Store wirkt erst, nachdem das Projekt neu deployt wurde: Vercel-Dashboard →
+            Deployments → beim neuesten Eintrag über das Menü „Redeploy“ auswählen.
+          </p>
+          <p className="mt-1.5">
+            Gefundene Blob-Variablen:{" "}
+            <code className="font-mono">
+              {storage.blobEnvNames.length > 0 ? storage.blobEnvNames.join(", ") : "keine"}
+            </code>
+          </p>
+        </div>
+      )}
 
       <nav className="mb-5 flex gap-1.5">
         {(

@@ -14,12 +14,47 @@ import type { Exam } from "./types";
 const BLOB_KEY = "goethe-c1/exams.json";
 const LOCAL_FILE = path.join(process.cwd(), ".data", "exams.json");
 
-function hasBlob() {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
-}
-
 /** Fehler, dessen Text direkt in der Oberfläche angezeigt werden darf. */
 export class StorageError extends Error {}
+
+type BlobAccess =
+  | { kind: "token"; token: string; via: string }
+  | { kind: "oidc"; via: string };
+
+/**
+ * Sucht den Zugang zum Blob-Store.
+ *
+ * Beim Verbinden eines Stores legt Vercel normalerweise BLOB_READ_WRITE_TOKEN an.
+ * Wird beim Verbinden ein eigenes Präfix vergeben, heißt die Variable jedoch zum
+ * Beispiel GOETHE_BLOB_READ_WRITE_TOKEN – deshalb wird auch danach gesucht.
+ * Alternativ authentifiziert das SDK über OIDC, wenn BLOB_STORE_ID gesetzt ist.
+ */
+function resolveBlob(): BlobAccess | null {
+  const direct = process.env.BLOB_READ_WRITE_TOKEN;
+  if (direct) return { kind: "token", token: direct, via: "BLOB_READ_WRITE_TOKEN" };
+
+  for (const [name, value] of Object.entries(process.env)) {
+    if (value && name.endsWith("BLOB_READ_WRITE_TOKEN")) {
+      return { kind: "token", token: value, via: name };
+    }
+  }
+
+  if (process.env.BLOB_STORE_ID && process.env.VERCEL_OIDC_TOKEN) {
+    return { kind: "oidc", via: "BLOB_STORE_ID + VERCEL_OIDC_TOKEN" };
+  }
+
+  return null;
+}
+
+function hasBlob() {
+  return resolveBlob() !== null;
+}
+
+/** Nur die Optionen, die das SDK zusätzlich braucht – bei OIDC keine. */
+function blobOptions(): { token?: string } {
+  const access = resolveBlob();
+  return access?.kind === "token" ? { token: access.token } : {};
+}
 
 /**
  * Auf Vercel ist das Dateisystem schreibgeschützt. Ohne verbundenen Blob-Store
@@ -30,11 +65,30 @@ function assertWritable() {
   if (hasBlob()) return;
   if (process.env.VERCEL) {
     throw new StorageError(
-      "Es ist kein Blob-Store mit diesem Vercel-Projekt verbunden, deshalb lässt sich nichts " +
-        "speichern. Im Vercel-Dashboard unter Storage einen Blob-Store anlegen, mit dem Projekt " +
-        "verbinden und anschließend neu deployen.",
+      "Es ist kein Blob-Token in dieser Bereitstellung angekommen, deshalb lässt sich nichts " +
+        "speichern. Ein verbundener Blob-Store wirkt erst nach einem neuen Deployment: im " +
+        "Vercel-Dashboard unter Deployments das neueste Deployment erneut ausführen " +
+        `(Redeploy). Gefundene Blob-Variablen: ${listBlobEnvNames().join(", ") || "keine"}.`,
     );
   }
+}
+
+/** Namen aller blobbezogenen Umgebungsvariablen – ausdrücklich ohne Werte. */
+export function listBlobEnvNames(): string[] {
+  return Object.keys(process.env)
+    .filter((name) => name.includes("BLOB"))
+    .sort();
+}
+
+/** Zustand des Speichers für die Anzeige im Adminbereich. */
+export function storageDiagnostics() {
+  const access = resolveBlob();
+  return {
+    backend: access ? ("blob" as const) : ("datei" as const),
+    onVercel: Boolean(process.env.VERCEL),
+    via: access?.via ?? null,
+    blobEnvNames: listBlobEnvNames(),
+  };
 }
 
 async function readLocal(): Promise<Exam[]> {
@@ -62,20 +116,46 @@ async function writeLocal(exams: Exam[]) {
   }
 }
 
+/**
+ * Wichtig: Schlägt das Lesen fehl, wird ein Fehler geworfen und niemals eine
+ * leere Liste zurückgegeben. Sonst würde ein anschließendes Speichern den
+ * gesamten Bestand mit einem einzigen Eintrag überschreiben.
+ */
 async function readBlob(): Promise<Exam[]> {
   const { list } = await import("@vercel/blob");
-  const { blobs } = await list({ prefix: BLOB_KEY, limit: 1 });
+
+  let blobs;
+  try {
+    ({ blobs } = await list({ prefix: BLOB_KEY, limit: 1, ...blobOptions() }));
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new StorageError(
+      `Der Blob-Store ist nicht erreichbar: ${message}. Meist ist das Token ungültig oder ` +
+        "gehört zu einem anderen Store. Im Vercel-Dashboard den Store erneut mit dem Projekt " +
+        "verbinden und neu deployen.",
+    );
+  }
+
   const blob = blobs.find((b) => b.pathname === BLOB_KEY);
+  // Ein leerer Store ist ein gültiger Anfangszustand – noch wurde nichts angelegt.
   if (!blob) return [];
+
   // no-store, sonst liefert das CDN nach einem Schreibvorgang noch die alte Fassung.
   const res = await fetch(blob.url, { cache: "no-store" });
-  if (!res.ok) throw new Error(`Blob konnte nicht gelesen werden (${res.status}).`);
-  return (await res.json()) as Exam[];
+  if (!res.ok) {
+    throw new StorageError(`Die gespeicherten Modellsätze konnten nicht gelesen werden (HTTP ${res.status}).`);
+  }
+  try {
+    return (await res.json()) as Exam[];
+  } catch {
+    throw new StorageError("Die gespeicherte Datei im Blob-Store ist beschädigt.");
+  }
 }
 
 async function writeBlob(exams: Exam[]) {
   const { put } = await import("@vercel/blob");
   await put(BLOB_KEY, JSON.stringify(exams, null, 2), {
+    ...blobOptions(),
     access: "public",
     contentType: "application/json",
     addRandomSuffix: false,
@@ -87,6 +167,22 @@ async function writeBlob(exams: Exam[]) {
 export async function listExams(): Promise<Exam[]> {
   const exams = hasBlob() ? await readBlob() : await readLocal();
   return exams.sort((a, b) => a.title.localeCompare(b.title, "de"));
+}
+
+/**
+ * Wie listExams, wirft aber nicht – für Seiten, die bei einem Speicherproblem
+ * eine Erklärung anzeigen sollen statt mit einem 500er abzustürzen.
+ */
+export async function listExamsSafe(): Promise<{ exams: Exam[]; error: string | null }> {
+  try {
+    return { exams: await listExams(), error: null };
+  } catch (err) {
+    const message =
+      err instanceof StorageError
+        ? err.message
+        : `Der Speicher konnte nicht gelesen werden: ${err instanceof Error ? err.message : String(err)}`;
+    return { exams: [], error: message };
+  }
 }
 
 export async function getExam(id: string): Promise<Exam | null> {

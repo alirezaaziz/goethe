@@ -53,9 +53,18 @@ openssl rand -hex 32
    auswählen. Next.js wird automatisch erkannt, Einstellungen müssen nicht angepasst werden.
 
 3. **Blob-Store verbinden** – im Vercel-Projekt unter **Storage → Create Database → Blob**
-   einen Store anlegen und mit dem Projekt verbinden. Vercel setzt `BLOB_READ_WRITE_TOKEN`
-   danach von selbst. Der kostenlose Plan reicht bei Weitem: alle Modellsätze zusammen liegen
-   in einer einzigen JSON-Datei von wenigen hundert Kilobyte.
+   einen Store anlegen und mit dem Projekt verbinden. Der kostenlose Plan reicht bei Weitem:
+   alle Modellsätze zusammen liegen in einer einzigen JSON-Datei von wenigen hundert Kilobyte.
+
+   > **Wichtig:** Umgebungsvariablen werden beim Deployment eingesetzt. Ein Store, der nach dem
+   > letzten Deployment verbunden wurde, wirkt erst nach einem **Redeploy**
+   > (Deployments → neuester Eintrag → Menü „⋯" → Redeploy). Bis dahin meldet der Adminbereich,
+   > dass kein Blob-Token angekommen ist.
+   >
+   > Vercel legt normalerweise `BLOB_READ_WRITE_TOKEN` an. Wird beim Verbinden ein eigenes
+   > Präfix vergeben, heißt die Variable zum Beispiel `GOETHE_BLOB_READ_WRITE_TOKEN` –
+   > beides wird erkannt. Welche Variable tatsächlich greift, steht im Adminbereich
+   > oben unter „Speicherort".
 
 4. **Umgebungsvariablen setzen** – unter **Settings → Environment Variables**:
 

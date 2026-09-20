@@ -9,7 +9,11 @@ export async function GET() {
   if (!(await isAuthenticated())) {
     return NextResponse.json({ error: "Nicht angemeldet." }, { status: 401 });
   }
-  return NextResponse.json({ exams: await listExams() });
+  try {
+    return NextResponse.json({ exams: await listExams() });
+  } catch (error) {
+    return NextResponse.json({ error: describeStorageError(error) }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
@@ -29,15 +33,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: validation.error, issues: validation.issues }, { status: 400 });
   }
 
-  const existing = await listExams();
-  if (existing.some((exam) => exam.id === validation.exam.id)) {
-    return NextResponse.json(
-      { error: `Es gibt bereits einen Modellsatz mit der ID „${validation.exam.id}“.` },
-      { status: 409 },
-    );
-  }
-
+  // Lesen und Schreiben gemeinsam absichern: Schon die Dublettenprüfung greift
+  // auf den Speicher zu und darf nicht als leerer 500er nach außen dringen.
   try {
+    const existing = await listExams();
+    if (existing.some((exam) => exam.id === validation.exam.id)) {
+      return NextResponse.json(
+        { error: `Es gibt bereits einen Modellsatz mit der ID „${validation.exam.id}“.` },
+        { status: 409 },
+      );
+    }
     return NextResponse.json({ exam: await saveExam(validation.exam) }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: describeStorageError(error) }, { status: 500 });

@@ -9,9 +9,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   if (!(await isAuthenticated())) {
     return NextResponse.json({ error: "Nicht angemeldet." }, { status: 401 });
   }
-  const exam = await getExam((await params).id);
-  if (!exam) return NextResponse.json({ error: "Nicht gefunden." }, { status: 404 });
-  return NextResponse.json({ exam });
+  try {
+    const exam = await getExam((await params).id);
+    if (!exam) return NextResponse.json({ error: "Nicht gefunden." }, { status: 404 });
+    return NextResponse.json({ exam });
+  } catch (error) {
+    return NextResponse.json({ error: describeStorageError(error) }, { status: 500 });
+  }
 }
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -20,8 +24,12 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   }
 
   const { id } = await params;
-  if (!(await getExam(id))) {
-    return NextResponse.json({ error: "Nicht gefunden." }, { status: 404 });
+  try {
+    if (!(await getExam(id))) {
+      return NextResponse.json({ error: "Nicht gefunden." }, { status: 404 });
+    }
+  } catch (error) {
+    return NextResponse.json({ error: describeStorageError(error) }, { status: 500 });
   }
 
   let payload: unknown;
@@ -36,18 +44,17 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: validation.error, issues: validation.issues }, { status: 400 });
   }
 
-  // Beim Umbenennen darf die neue ID nicht schon belegt sein.
-  if (validation.exam.id !== id) {
-    const existing = await listExams();
-    if (existing.some((exam) => exam.id === validation.exam.id)) {
-      return NextResponse.json(
-        { error: `Es gibt bereits einen Modellsatz mit der ID „${validation.exam.id}“.` },
-        { status: 409 },
-      );
-    }
-  }
-
   try {
+    // Beim Umbenennen darf die neue ID nicht schon belegt sein.
+    if (validation.exam.id !== id) {
+      const existing = await listExams();
+      if (existing.some((exam) => exam.id === validation.exam.id)) {
+        return NextResponse.json(
+          { error: `Es gibt bereits einen Modellsatz mit der ID „${validation.exam.id}“.` },
+          { status: 409 },
+        );
+      }
+    }
     return NextResponse.json({ exam: await renameExam(id, validation.exam) });
   } catch (error) {
     return NextResponse.json({ error: describeStorageError(error) }, { status: 500 });

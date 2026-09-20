@@ -1,7 +1,7 @@
 import AdminLogin from "@/components/AdminLogin";
 import AdminPanel from "@/components/AdminPanel";
 import { isAuthenticated } from "@/lib/auth";
-import { listExams, storageBackend } from "@/lib/store";
+import { listExamsSafe, storageDiagnostics } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -32,5 +32,6 @@ ADMIN_SECRET=$(openssl rand -hex 32)`}
     return <AdminLogin />;
   }
 
-  return <AdminPanel initialExams={await listExams()} backend={storageBackend()} />;
+  const { exams, error } = await listExamsSafe();
+  return <AdminPanel initialExams={exams} storage={storageDiagnostics()} loadError={error} />;
 }

@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { listExams, storageBackend } from "@/lib/store";
+import { listExamsSafe, storageBackend } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const exams = await listExams();
+  const { exams, error } = await listExamsSafe();
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
@@ -18,7 +18,14 @@ export default async function HomePage() {
         </p>
       </section>
 
-      {exams.length === 0 ? (
+      {error ? (
+        <div className="card p-6" style={{ borderColor: "var(--bad)", background: "var(--bad-soft)" }}>
+          <p className="font-semibold text-[var(--bad)]">
+            Die Modellsätze konnten nicht geladen werden.
+          </p>
+          <p className="mt-2 text-sm text-[var(--bad)]">{error}</p>
+        </div>
+      ) : exams.length === 0 ? (
         <div className="card p-8 text-center">
           <p className="font-medium">Es ist noch kein Modellsatz hinterlegt.</p>
           <p className="mt-2 text-sm text-[var(--muted)]">
