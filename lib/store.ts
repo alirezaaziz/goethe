@@ -121,37 +121,67 @@ async function writeLocal(exams: Exam[]) {
   }
 }
 
+type BlobAccessMode = "public" | "private";
+
+/**
+ * Ein Blob-Store ist entweder öffentlich oder privat konfiguriert, und jeder
+ * Aufruf muss dazu passen. Welche Variante gilt, steht nirgends in der Umgebung –
+ * deshalb wird es beim ersten Zugriff ermittelt und danach gemerkt.
+ *
+ * Bevorzugt wird "private": Die Datei enthält die Lösungen aller Leseaufgaben
+ * und hat unter einer öffentlich abrufbaren URL nichts zu suchen.
+ */
+let storeAccess: BlobAccessMode | null = null;
+
+function isAccessMismatch(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /access on a (private|public) store/i.test(message);
+}
+
+async function withAccess<T>(run: (access: BlobAccessMode) => Promise<T>): Promise<T> {
+  const first: BlobAccessMode = storeAccess ?? "private";
+  try {
+    const result = await run(first);
+    storeAccess = first;
+    return result;
+  } catch (error) {
+    if (!isAccessMismatch(error)) throw error;
+    const second: BlobAccessMode = first === "private" ? "public" : "private";
+    const result = await run(second);
+    storeAccess = second;
+    return result;
+  }
+}
+
 /**
  * Wichtig: Schlägt das Lesen fehl, wird ein Fehler geworfen und niemals eine
  * leere Liste zurückgegeben. Sonst würde ein anschließendes Speichern den
  * gesamten Bestand mit einem einzigen Eintrag überschreiben.
  */
 async function readBlob(): Promise<Exam[]> {
-  const { list } = await import("@vercel/blob");
+  const { get } = await import("@vercel/blob");
 
-  let blobs;
+  let result;
   try {
-    ({ blobs } = await list({ prefix: BLOB_KEY, limit: 1, ...blobOptions() }));
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
+    // useCache: false, sonst liefert das CDN nach einem Schreibvorgang noch die alte Fassung.
+    result = await withAccess((access) =>
+      get(BLOB_KEY, { access, useCache: false, ...blobOptions() }),
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     throw new StorageError(
-      `Der Blob-Store ist nicht erreichbar: ${message}. Meist ist das Token ungültig oder ` +
+      `Der Blob-Store ist nicht erreichbar: ${message}. Meist stimmt der Zugang nicht oder ` +
         "gehört zu einem anderen Store. Im Vercel-Dashboard den Store erneut mit dem Projekt " +
         "verbinden und neu deployen.",
     );
   }
 
-  const blob = blobs.find((b) => b.pathname === BLOB_KEY);
-  // Ein leerer Store ist ein gültiger Anfangszustand – noch wurde nichts angelegt.
-  if (!blob) return [];
+  // Noch nichts gespeichert – ein gültiger Anfangszustand.
+  if (!result || result.statusCode !== 200) return [];
 
-  // no-store, sonst liefert das CDN nach einem Schreibvorgang noch die alte Fassung.
-  const res = await fetch(blob.url, { cache: "no-store" });
-  if (!res.ok) {
-    throw new StorageError(`Die gespeicherten Modellsätze konnten nicht gelesen werden (HTTP ${res.status}).`);
-  }
+  const text = await new Response(result.stream).text();
   try {
-    return (await res.json()) as Exam[];
+    return JSON.parse(text) as Exam[];
   } catch {
     throw new StorageError("Die gespeicherte Datei im Blob-Store ist beschädigt.");
   }
@@ -159,14 +189,15 @@ async function readBlob(): Promise<Exam[]> {
 
 async function writeBlob(exams: Exam[]) {
   const { put } = await import("@vercel/blob");
-  await put(BLOB_KEY, JSON.stringify(exams, null, 2), {
-    ...blobOptions(),
-    access: "public",
-    contentType: "application/json",
-    addRandomSuffix: false,
-    allowOverwrite: true,
-    cacheControlMaxAge: 0,
-  });
+  await withAccess((access) =>
+    put(BLOB_KEY, JSON.stringify(exams, null, 2), {
+      ...blobOptions(),
+      access,
+      contentType: "application/json",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+    }),
+  );
 }
 
 export async function listExams(): Promise<Exam[]> {

@@ -62,9 +62,15 @@ openssl rand -hex 32
    > dass kein Blob-Token angekommen ist.
    >
    > Vercel legt normalerweise `BLOB_READ_WRITE_TOKEN` an. Wird beim Verbinden ein eigenes
-   > Präfix vergeben, heißt die Variable zum Beispiel `GOETHE_BLOB_READ_WRITE_TOKEN` –
-   > beides wird erkannt. Welche Variable tatsächlich greift, steht im Adminbereich
-   > oben unter „Speicherort".
+   > Präfix vergeben, heißt die Variable zum Beispiel `GOETHE_BLOB_READ_WRITE_TOKEN`.
+   > Wird der Store über OIDC angebunden, steht stattdessen nur `BLOB_STORE_ID` in der
+   > Umgebung und das SDK holt sich das Token pro Anfrage selbst. Alle drei Fälle werden
+   > erkannt; welcher greift, steht im Adminbereich oben unter „Speicherort".
+   >
+   > Ob der Store **privat** oder **öffentlich** konfiguriert ist, wird beim ersten Zugriff
+   > automatisch ermittelt. Ein privater Store ist die bessere Wahl: Die gespeicherte Datei
+   > enthält die Lösungen aller Leseaufgaben und sollte nicht unter einer öffentlich
+   > abrufbaren URL liegen.
 
 4. **Umgebungsvariablen setzen** – unter **Settings → Environment Variables**:
 
