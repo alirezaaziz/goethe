@@ -95,12 +95,24 @@ openssl rand -hex 32
 ## Neuen Modellsatz erzeugen
 
 1. `/admin` öffnen und anmelden.
-2. Reiter **„Prompt für neue Modellsätze"** – einen vorhandenen Satz als Stilvorlage wählen,
-   optional eine Themenrichtung angeben, **Prompt kopieren**.
-3. Den Prompt in Claude, ChatGPT oder ein anderes Modell einfügen. Die Antwort ist ein
+2. Reiter **„Prompt für neue Modellsätze"**. Die Themen für alle neun Aufgabenteile werden
+   dort **ausgelost** und im Prompt als verbindliche Vorgabe mitgegeben; die Auswahl steht
+   sichtbar über dem Prompt. Gefällt sie nicht, genügt ein Klick auf **„Neue Themen auslosen"**.
+   Eine eigene Themenvorgabe im Feld daneben schaltet das Auslosen ab.
+
+   > Warum das Auslosen im Code passiert und nicht im Prompt: Ein gleichbleibender Prompt führt
+   > bei Sprachmodellen verlässlich zu denselben naheliegenden Themen. Deshalb zieht der Server
+   > die Themen aus `lib/topic-pools.ts` und schreibt sie in den Prompt. Aus demselben Grund
+   > wird die gewählte Vorlage nur **vermessen** (Textlängen, Absatzzahlen, Machart der Items)
+   > statt im Volltext mitgeschickt – ein vollständiger Beispielsatz im Kontext führt dazu, dass
+   > Modelle ihn umformulieren, statt etwas Neues zu schreiben. Seine Themen stehen zusätzlich
+   > auf einer Sperrliste.
+
+3. **Prompt kopieren**.
+4. Den Prompt in Claude, ChatGPT oder ein anderes Modell einfügen. Die Antwort ist ein
    JSON-Objekt mit allen Lesen-Lösungen und je einer Musterlösung für die beiden
    Schreibaufgaben.
-4. Zurück im Reiter **„Modellsätze"** auf **„+ Modellsatz hinzufügen"**, das JSON einfügen,
+5. Zurück im Reiter **„Modellsätze"** auf **„+ Modellsatz hinzufügen"**, das JSON einfügen,
    speichern. Vor dem Speichern wird geprüft:
    * Struktur und Datentypen aller Felder,
    * Aufgabenanzahl je Teil (8 / 7 / 8 / 7) und Nummerierung 1 bis 30,
@@ -184,6 +196,7 @@ lib/
   scoring.ts                   Punktetabellen und Auswertung
   grading/                     Prompt, Anthropic- und OpenAI-Anbindung
   generator-prompt.ts          Prompt für neue Modellsätze
+  topic-pools.ts               Themenvorrat, aus dem ausgelost wird
 data/seed/                     offizieller Modellsatz
 ```
 

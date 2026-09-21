@@ -348,30 +348,47 @@ function PromptTab({ exams }: { exams: Exam[] }) {
   const [referenceId, setReferenceId] = useState(exams[0]?.id ?? "");
   const [hint, setHint] = useState("");
   const [prompt, setPrompt] = useState("");
+  const [themen, setThemen] = useState<Array<{ label: string; thema: string }>>([]);
+  const [seed, setSeed] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const { copied, copy } = useCopy();
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const url = new URL("/api/admin/prompt", window.location.origin);
-      if (referenceId) url.searchParams.set("referenz", referenceId);
-      if (hint.trim()) url.searchParams.set("themen", hint.trim());
-      const res = await fetch(url);
-      const data = await readJson<{ prompt?: string; error?: string }>(res);
-      setPrompt(data.prompt ?? data.error ?? "");
-    } catch (err) {
-      setPrompt(err instanceof Error ? err.message : "Der Prompt konnte nicht erzeugt werden.");
-    } finally {
-      setLoading(false);
-    }
-  }, [hint, referenceId]);
+  /** Ohne Seed würfelt der Server neue Themen aus; mit Seed bleibt alles gleich. */
+  const load = useCallback(
+    async (keepSeed: number | null = null) => {
+      setLoading(true);
+      try {
+        const url = new URL("/api/admin/prompt", window.location.origin);
+        if (referenceId) url.searchParams.set("referenz", referenceId);
+        if (hint.trim()) url.searchParams.set("themen", hint.trim());
+        if (keepSeed !== null) url.searchParams.set("seed", String(keepSeed));
+        const res = await fetch(url);
+        const data = await readJson<{
+          prompt?: string;
+          seed?: number;
+          themen?: Array<{ label: string; thema: string }>;
+          error?: string;
+        }>(res);
+        setPrompt(data.prompt ?? data.error ?? "");
+        setThemen(data.themen ?? []);
+        setSeed(data.seed ?? null);
+      } catch (err) {
+        setPrompt(err instanceof Error ? err.message : "Der Prompt konnte nicht erzeugt werden.");
+        setThemen([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [hint, referenceId],
+  );
 
   useEffect(() => {
-    void load();
-    // Nur bei Wechsel der Referenz neu laden; die Themenvorgabe wird per Knopf übernommen.
+    void load(seed);
+    // Beim Wechsel der Stilvorlage nur neu bauen, die Themen aber behalten.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [referenceId]);
+
+  const eigeneThemen = hint.trim().length > 0;
 
   return (
     <section className="card p-5">
@@ -379,13 +396,13 @@ function PromptTab({ exams }: { exams: Exam[] }) {
       <p className="mt-1 text-sm text-[var(--muted)]">
         Kopieren Sie diesen Prompt und geben Sie ihn einer KI Ihrer Wahl. Sie erhalten ein
         JSON-Objekt, das sich direkt im Reiter „Modellsätze“ einfügen lässt – einschließlich aller
-        Lesen-Lösungen und der Leistungsbeispiele für das Modul Schreiben.
+        Lesen-Lösungen und der Musterlösungen für das Modul Schreiben.
       </p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
           <label className="label" htmlFor="referenz">
-            Stilvorlage
+            Maßvorlage
           </label>
           <select
             id="referenz"
@@ -401,31 +418,54 @@ function PromptTab({ exams }: { exams: Exam[] }) {
             ))}
           </select>
           <p className="mt-1 text-xs text-[var(--muted)]">
-            Der gewählte Satz wird vollständig in den Prompt eingebettet. Das überträgt Aufbau, Ton
-            und Schwierigkeitsgrad am zuverlässigsten.
+            Aus dem gewählten Satz werden nur Textlängen und Machart übernommen, keine Inhalte.
+            Seine Themen werden ausdrücklich gesperrt.
           </p>
         </div>
         <div>
           <label className="label" htmlFor="themen">
-            Themenvorgabe (optional)
+            Eigene Themenvorgabe (optional)
           </label>
           <input
             id="themen"
             className="input"
-            placeholder="z. B. Homeoffice, Städtebau, künstliche Intelligenz"
+            placeholder="leer lassen, dann werden Themen ausgelost"
             value={hint}
             onChange={(event) => setHint(event.target.value)}
           />
-          <button className="btn mt-2" type="button" onClick={load} disabled={loading}>
-            {loading ? "Wird erzeugt …" : "Prompt aktualisieren"}
-          </button>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button className="btn" type="button" onClick={() => load(null)} disabled={loading}>
+              {loading ? "Wird erzeugt …" : eigeneThemen ? "Prompt aktualisieren" : "Neue Themen auslosen"}
+            </button>
+            {seed !== null && !eigeneThemen && (
+              <span className="chip tabular-nums">Auftrag {seed}</span>
+            )}
+          </div>
         </div>
       </div>
+
+      {themen.length > 0 && !eigeneThemen && (
+        <div className="mt-4 rounded-lg border bg-[var(--surface-2)] p-3">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+            Ausgeloste Themen dieses Prompts
+          </p>
+          <ul className="grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
+            {themen.map((entry) => (
+              <li key={entry.label} className="flex gap-2">
+                <span className="flex-none font-medium text-[var(--muted)]">{entry.label}:</span>
+                <span>{entry.thema}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-[var(--muted)]">
+            Gefällt Ihnen etwas nicht, lösen Sie einfach neu aus.
+          </p>
+        </div>
+      )}
 
       <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs text-[var(--muted)]">
           {prompt.length.toLocaleString("de-DE")} Zeichen
-          {referenceId && " (inklusive eingebetteter Stilvorlage)"}
         </span>
         <button
           className="btn btn-primary"
