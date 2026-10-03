@@ -1,14 +1,19 @@
 import type { Exam, LesenPart } from "./types";
 import {
-  LESEN_1,
-  LESEN_2,
-  LESEN_3,
-  LESEN_4,
-  SCHREIBEN_1,
-  SCHREIBEN_2,
-  SPRECHEN_DISKUSSION,
-  SPRECHEN_VORTRAG,
-  type Topic,
+  ABGENUTZTE_THEMEN,
+  ADRESSAT_SCHREIBEN_2,
+  ANLASS_SCHREIBEN_2,
+  ASPEKTE,
+  BEREICHE,
+  FAKTOREN,
+  WENDEPUNKTE,
+  WIRKUNGEN,
+  ZUGRIFF_LESEN_1,
+  ZUGRIFF_LESEN_3,
+  ZUGRIFF_LESEN_4,
+  ZUGRIFF_SCHREIBEN_1,
+  ZUGRIFF_SPRECHEN_1,
+  ZUGRIFF_SPRECHEN_2,
 } from "./topic-pools";
 
 export interface GeneratorOptions {
@@ -16,6 +21,8 @@ export interface GeneratorOptions {
   topicHint?: string;
   /** Macht die Auswahl reproduzierbar. Ohne Angabe wird jedes Mal neu gewürfelt. */
   seed?: number;
+  /** Alle vorhandenen Modellsätze – ihre Themen landen auf der Sperrliste. */
+  existingExams?: Exam[];
 }
 
 export interface GeneratedPrompt {
@@ -36,24 +43,15 @@ function mulberry32(seed: number) {
   };
 }
 
-/**
- * Zieht Themen, ohne dass sich Sachgebiete innerhalb eines Modellsatzes
- * wiederholen. So entsteht ein Satz, der thematisch wirklich breit ist,
- * statt viermal um dasselbe Feld zu kreisen.
- */
-function draw(
-  rand: () => number,
-  pool: Topic[],
-  used: Set<string>,
-  count = 1,
-): Topic[] {
-  const gezogen: Topic[] = [];
+/** Zieht `count` verschiedene Einträge aus einer Liste. */
+function pick<T>(rand: () => number, pool: T[], count = 1, used = new Set<T>()): T[] {
+  const gezogen: T[] = [];
   for (let n = 0; n < count; n++) {
-    const frei = pool.filter((t) => !used.has(t.bereich) && !gezogen.includes(t));
-    const auswahl = frei.length > 0 ? frei : pool.filter((t) => !gezogen.includes(t));
-    const topic = auswahl[Math.floor(rand() * auswahl.length)];
-    gezogen.push(topic);
-    used.add(topic.bereich);
+    const frei = pool.filter((x) => !used.has(x) && !gezogen.includes(x));
+    const auswahl = frei.length > 0 ? frei : pool.filter((x) => !gezogen.includes(x));
+    const treffer = auswahl[Math.floor(rand() * auswahl.length)];
+    gezogen.push(treffer);
+    used.add(treffer);
   }
   return gezogen;
 }
@@ -138,10 +136,14 @@ function buildStyleProfile(exam: Exam): string {
   return zeilen.join("\n");
 }
 
-/** Themen des Referenzsatzes – sie sind für den neuen Satz gesperrt. */
-function buildBanList(exam: Exam): string[] {
+/** Themen aller vorhandenen Modellsätze – sie sind für den neuen Satz gesperrt. */
+function buildBanList(exams: Exam[]): string[] {
   const gesperrt: string[] = [];
+  for (const exam of exams) collectTopics(exam, gesperrt);
+  return [...new Set(gesperrt.filter(Boolean))];
+}
 
+function collectTopics(exam: Exam, gesperrt: string[]) {
   for (const part of exam.lesen.parts) {
     if (part.type === "match-source") {
       if (part.subheading) gesperrt.push(part.subheading);
@@ -154,8 +156,6 @@ function buildBanList(exam: Exam): string[] {
   }
   const [vortrag, diskussion] = exam.sprechen.parts;
   gesperrt.push(...vortrag.topics.map((t) => t.title), diskussion.inputTitle);
-
-  return gesperrt.filter(Boolean);
 }
 
 /**
@@ -171,51 +171,69 @@ export function buildGeneratorPrompt(
   reference: Exam | null,
   options: GeneratorOptions = {},
 ): GeneratedPrompt {
+  const alleSaetze = options.existingExams ?? (reference ? [reference] : []);
   const seed = options.seed ?? Math.floor(Math.random() * 1_000_000);
   const rand = mulberry32(seed);
-  const used = new Set<string>();
 
-  const l1 = draw(rand, LESEN_1, used)[0];
-  const l2 = draw(rand, LESEN_2, used)[0];
-  const l3 = draw(rand, LESEN_3, used)[0];
-  const l4 = draw(rand, LESEN_4, used)[0];
-  const s1 = draw(rand, SCHREIBEN_1, used)[0];
-  const s2 = draw(rand, SCHREIBEN_2, used)[0];
-  const [v1, v2] = draw(rand, SPRECHEN_VORTRAG, used, 2);
-  const d1 = draw(rand, SPRECHEN_DISKUSSION, used)[0];
+  // Neun verschiedene Bereiche, damit ein Modellsatz thematisch breit wird.
+  const [b1, b2, b3, b4, b5, b6, b7, b8, b9] = pick(rand, BEREICHE, 9);
+
+  // Jede Frage entsteht aus mehreren Achsen. Eine einzelne Liste wäre nach
+  // rund zwanzig Modellsätzen aufgebraucht; kombiniert reichen die Bausteine
+  // für Zehntausende verschiedener Aufgabenstellungen.
+  const aspekte = pick(rand, ASPEKTE, 6);
+
+  const z1 = pick(rand, ZUGRIFF_LESEN_1)[0];
+  const wendepunkt = pick(rand, WENDEPUNKTE)[0];
+  const faktor = pick(rand, FAKTOREN)[0];
+  const wirkung = pick(rand, WIRKUNGEN)[0];
+  const z3 = pick(rand, ZUGRIFF_LESEN_3)[0];
+  const z4 = pick(rand, ZUGRIFF_LESEN_4)[0];
+  const z5 = pick(rand, ZUGRIFF_SCHREIBEN_1)[0];
+  const anlass = pick(rand, ANLASS_SCHREIBEN_2)[0];
+  const adressat = pick(rand, ADRESSAT_SCHREIBEN_2)[0];
+  const [z7, z8] = pick(rand, ZUGRIFF_SPRECHEN_1, 2);
+  const z9 = pick(rand, ZUGRIFF_SPRECHEN_2)[0];
 
   const themen = [
-    { label: "Lesen Teil 1", thema: l1.thema },
-    { label: "Lesen Teil 2", thema: l2.thema },
-    { label: "Lesen Teil 3", thema: l3.thema },
-    { label: "Lesen Teil 4", thema: l4.thema },
-    { label: "Schreiben Teil 1", thema: s1.thema },
-    { label: "Schreiben Teil 2", thema: s2.thema },
-    { label: "Sprechen Thema 1", thema: v1.thema },
-    { label: "Sprechen Thema 2", thema: v2.thema },
-    { label: "Sprechen Diskussion", thema: d1.thema },
+    { label: "Lesen Teil 1", thema: `${b1} – ${z1}, ${wendepunkt}` },
+    { label: "Lesen Teil 2", thema: `${b2} – wie sich ${faktor} auf ${wirkung} auswirkt` },
+    { label: "Lesen Teil 3", thema: `${b3} – ${z3} (Streitpunkt: ${aspekte[0]})` },
+    { label: "Lesen Teil 4", thema: `${b4} – ${z4} (Streitpunkt: ${aspekte[1]})` },
+    { label: "Schreiben Teil 1", thema: `${b5} – ${z5} (Streitpunkt: ${aspekte[2]})` },
+    { label: "Schreiben Teil 2", thema: `${b6} – ${anlass}; Schreiben an ${adressat}` },
+    { label: "Sprechen Thema 1", thema: `${b7} – ${z7} (Streitpunkt: ${aspekte[3]})` },
+    { label: "Sprechen Thema 2", thema: `${b8} – ${z8} (Streitpunkt: ${aspekte[4]})` },
+    { label: "Sprechen Diskussion", thema: `${b9} – ${z9} (Streitpunkt: ${aspekte[5]})` },
   ];
 
   const eigeneVorgabe = options.topicHint?.trim();
 
   const auftrag = eigeneVorgabe
     ? `Alle Texte und Aufgaben dieses Modellsatzes drehen sich um folgende Vorgabe: **${eigeneVorgabe}**
+
 Wähle darin für jeden Prüfungsteil einen eigenen, deutlich unterschiedlichen Ausschnitt, damit sich die Teile nicht ähneln.`
-    : `Die Themen sind bereits ausgelost und **verbindlich**. Erfinde keine eigenen und tausche keines aus:
+    : `Für jeden Prüfungsteil sind zwei Dinge ausgelost: ein **Bereich** und ein **Zugriff**. Beide sind verbindlich. Das konkrete Thema erfindest **du** daraus – es steht absichtlich nicht hier.
 
-| Prüfungsteil | Vorgegebenes Thema |
-|---|---|
-| Lesen Teil 1 | ${l1.thema} |
-| Lesen Teil 2 | ${l2.thema} |
-| Lesen Teil 3 | ${l3.thema} |
-| Lesen Teil 4 | ${l4.thema} |
-| Schreiben Teil 1 | ${s1.thema} |
-| Schreiben Teil 2 | ${s2.thema} |
-| Sprechen Thema 1 | ${v1.thema} |
-| Sprechen Thema 2 | ${v2.thema} |
-| Sprechen Teil 2 | ${d1.thema} |
+| Prüfungsteil | Bereich | Zugriff |
+|---|---|---|
+| Lesen Teil 1 | ${b1} | ${z1}. Wendepunkt: ${wendepunkt} |
+| Lesen Teil 2 | ${b2} | eine Untersuchung dazu, wie sich **${faktor}** auf **${wirkung}** auswirkt |
+| Lesen Teil 3 | ${b3} | ${z3}. Streitpunkt: ${aspekte[0]} |
+| Lesen Teil 4 | ${b4} | ${z4} Streitpunkt: ${aspekte[1]} |
+| Schreiben Teil 1 | ${b5} | ${z5} Streitpunkt: ${aspekte[2]} |
+| Schreiben Teil 2 | ${b6} | ${anlass}; die Mitteilung geht an ${adressat} |
+| Sprechen Thema 1 | ${b7} | ${z7} Streitpunkt: ${aspekte[3]} |
+| Sprechen Thema 2 | ${b8} | ${z8} Streitpunkt: ${aspekte[4]} |
+| Sprechen Teil 2 | ${b9} | es wird über ${z9} gestritten; Streitpunkt: ${aspekte[5]} |
 
-Erfinde zu jedem dieser Themen eigene Namen, Orte, Zahlen, Institutionen und Beispiele. Keine realen Firmen oder lebenden Personen.`;
+So gehst du vor: Nimm den Bereich, lege den Zugriff darauf und entwickle daraus eine **konkrete** Situation – mit erfundenen Namen, Orten, Einrichtungen und Zahlen. Keine realen Firmen, keine lebenden Personen.
+
+Zwei Dinge sind dabei entscheidend:
+
+- **Nimm nicht die erstbeste Idee.** Denk dir zu jedem Rahmen drei mögliche Themen aus und nimm das dritte – das naheliegendste ist fast immer das langweiligste und steht vermutlich schon in einem anderen Modellsatz.
+- **Bleib im Bereich.** Wenn dort „${b1}" steht, spielt der Text in genau diesem Feld und nicht in einem verwandten, das dir vertrauter vorkommt.
+- **Wenn ein Paar nicht zusammenpasst**, ist der Bereich bindend und der Zugriff verhandelbar: Verschiebe den Zugriff so weit, dass eine sinnvolle, prüfungstaugliche Frage entsteht – aber wechsle niemals den Bereich. Oft trägt eine Kombination weiter, als sie auf den ersten Blick wirkt; prüfe das erst, bevor du etwas änderst.`;
 
   const profil = reference
     ? `## 4. Maßvorlage aus einem bestehenden Modellsatz
@@ -225,7 +243,7 @@ Die folgenden Angaben beschreiben **ausschließlich Umfang und Machart**, nicht 
 ${buildStyleProfile(reference)}`
     : "";
 
-  const gesperrt = reference ? buildBanList(reference) : [];
+  const gesperrt = buildBanList(alleSaetze);
   const banBlock =
     gesperrt.length > 0
       ? `## 5. Gesperrte Inhalte
@@ -234,8 +252,16 @@ Diese Themen kommen in einem bereits vorhandenen Modellsatz vor. Sie dürfen **w
 
 ${gesperrt.map((t) => `- ${t}`).join("\n")}
 
-Wenn dir zu einem vorgegebenen Thema eine Formulierung einfällt, die einem dieser Punkte ähnelt, verwirf sie und wähle einen anderen Zugang.`
+Wenn dir eine Idee einfällt, die einem dieser Punkte ähnelt, verwirf sie und wähle einen anderen Zugang.`
       : "";
+
+  const klischeeBlock = `## ${gesperrt.length > 0 ? "5b" : "5"}. Abgenutzte Themen
+
+Die folgenden Themen wählen Sprachmodelle fast immer, wenn man sie frei entscheiden lässt. Sie sind hier **gesperrt**, auch als Nebenaspekt eines Textes:
+
+${ABGENUTZTE_THEMEN.map((t) => `- ${t}`).join("\n")}
+
+Das heißt nicht, dass die Texte harmlos sein sollen – sie sollen nur nicht auf dieselben vier Schlagworte hinauslaufen.`;
 
   const prompt = `# Auftrag ${seed}: neuen Modellsatz für das Goethe-Zertifikat C1 (modular) erstellen
 
@@ -355,6 +381,8 @@ Zu **jeder** der beiden Aufgaben schreibst du eine **Musterlösung auf sicherem 
 ${profil}
 
 ${banBlock}
+
+${klischeeBlock}
 
 ## 6. Harte Regeln – die Datei wird sonst abgelehnt
 

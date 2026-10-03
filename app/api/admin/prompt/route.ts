@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth";
-import { StorageError, getExam } from "@/lib/store";
+import { StorageError, listExams } from "@/lib/store";
 import { buildGeneratorPrompt } from "@/lib/generator-prompt";
 
 export const dynamic = "force-dynamic";
@@ -18,8 +18,15 @@ export async function GET(request: Request) {
   const seed = rawSeed !== null && /^\d+$/.test(rawSeed) ? Number(rawSeed) : undefined;
 
   try {
-    const reference = referenceId ? await getExam(referenceId) : null;
-    const result = buildGeneratorPrompt(reference, { topicHint: hint, seed });
+    // Alle Sätze werden geladen: einer dient als Maßvorlage, die Themen
+    // sämtlicher Sätze landen auf der Sperrliste.
+    const alle = await listExams();
+    const reference = referenceId ? (alle.find((e) => e.id === referenceId) ?? null) : null;
+    const result = buildGeneratorPrompt(reference, {
+      topicHint: hint,
+      seed,
+      existingExams: alle,
+    });
     return NextResponse.json(result);
   } catch (error) {
     const message =

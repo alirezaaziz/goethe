@@ -100,13 +100,33 @@ openssl rand -hex 32
    sichtbar über dem Prompt. Gefällt sie nicht, genügt ein Klick auf **„Neue Themen auslosen"**.
    Eine eigene Themenvorgabe im Feld daneben schaltet das Auslosen ab.
 
-   > Warum das Auslosen im Code passiert und nicht im Prompt: Ein gleichbleibender Prompt führt
-   > bei Sprachmodellen verlässlich zu denselben naheliegenden Themen. Deshalb zieht der Server
-   > die Themen aus `lib/topic-pools.ts` und schreibt sie in den Prompt. Aus demselben Grund
-   > wird die gewählte Vorlage nur **vermessen** (Textlängen, Absatzzahlen, Machart der Items)
-   > statt im Volltext mitgeschickt – ein vollständiger Beispielsatz im Kontext führt dazu, dass
-   > Modelle ihn umformulieren, statt etwas Neues zu schreiben. Seine Themen stehen zusätzlich
-   > auf einer Sperrliste.
+   > Wie die Auslosung funktioniert: Gezogen wird kein fertiges Thema, sondern je Prüfungsteil
+   > **drei Achsen**, aus denen das Sprachmodell das konkrete Thema selbst entwickelt:
+   >
+   > | Prüfungsteil | Achsen | Kombinationen |
+   > |---|---|---|
+   > | Lesen Teil 1 | Bereich × Merkmal des Betriebs × Wendepunkt | 41.500 |
+   > | Lesen Teil 2 | Bereich × Einflussfaktor × Wirkung | 79.680 |
+   > | Lesen Teil 3 | Bereich × Missstand × Streitpunkt | 58.432 |
+   > | Lesen Teil 4 | Bereich × Streitfrage × Streitpunkt | 58.432 |
+   > | Schreiben Teil 1 | Bereich × Frageform × Streitpunkt | 58.432 |
+   > | Schreiben Teil 2 | Bereich × Anlass × Adressat | 29.216 |
+   > | Sprechen | Bereich × Frageform × Streitpunkt | je 42.000–58.000 |
+   >
+   > Entscheidend ist, dass auch die *Zugriffe* kombiniert werden und nicht als fertige Sätze
+   > in einer Liste stehen: Eine Liste mit 22 Einträgen ist nach gut zwanzig Modellsätzen
+   > durch, drei Achsen sind es praktisch nie. Gemessen über 150 Auslosungen in Folge gab es
+   > in keinem einzigen Prüfungsteil eine Wiederholung.
+   >
+   > Warum das überhaupt im Code passiert und nicht im Prompt: Ein gleichbleibender Prompt führt
+   > bei Sprachmodellen verlässlich zu denselben naheliegenden Themen. Aus demselben Grund wird
+   > die gewählte Vorlage nur **vermessen** (Textlängen, Absatzzahlen, Machart der Items) statt
+   > im Volltext mitgeschickt – ein vollständiger Beispielsatz im Kontext führt dazu, dass
+   > Modelle ihn umformulieren, statt etwas Neues zu schreiben.
+   >
+   > Zusätzlich gesperrt werden die Themen **aller** bereits gespeicherten Modellsätze sowie eine
+   > Liste abgenutzter Themen (Nachhaltigkeit, KI, Homeoffice …), zu denen Sprachmodelle ohne
+   > Vorgabe fast immer greifen.
 
 3. **Prompt kopieren**.
 4. Den Prompt in Claude, ChatGPT oder ein anderes Modell einfügen. Die Antwort ist ein
@@ -196,7 +216,7 @@ lib/
   scoring.ts                   Punktetabellen und Auswertung
   grading/                     Prompt, Anthropic- und OpenAI-Anbindung
   generator-prompt.ts          Prompt für neue Modellsätze
-  topic-pools.ts               Themenvorrat, aus dem ausgelost wird
+  topic-pools.ts               Bereiche und Zugriffe, aus denen ausgelost wird
 data/seed/                     offizieller Modellsatz
 ```
 
