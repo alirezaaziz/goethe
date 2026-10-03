@@ -2,6 +2,8 @@ import type { Exam, LesenPart } from "./types";
 import {
   ABGENUTZTE_THEMEN,
   ADRESSAT_SCHREIBEN_2,
+  ALLTAGSASPEKTE,
+  ALLTAGSBEREICHE,
   ANLASS_SCHREIBEN_2,
   ASPEKTE,
   BEREICHE,
@@ -175,13 +177,19 @@ export function buildGeneratorPrompt(
   const seed = options.seed ?? Math.floor(Math.random() * 1_000_000);
   const rand = mulberry32(seed);
 
-  // Neun verschiedene Bereiche, damit ein Modellsatz thematisch breit wird.
-  const [b1, b2, b3, b4, b5, b6, b7, b8, b9] = pick(rand, BEREICHE, 9);
+  // Fachgebiete nur dort, wo ein Text oder eine Situation mitgeliefert wird:
+  // Lesen und Schreiben Teil 2. Sonst müssten Prüflinge über ein Fachgebiet
+  // sprechen, das sie nicht kennen können – das prüft Vorwissen, nicht Sprache.
+  const [b1, b2, b3, b4, b6] = pick(rand, BEREICHE, 5);
+  // Für Sprechen und Schreiben Teil 1 nur allgemein zugängliche Felder.
+  const [b5, b7, b8, b9] = pick(rand, ALLTAGSBEREICHE, 4);
 
   // Jede Frage entsteht aus mehreren Achsen. Eine einzelne Liste wäre nach
   // rund zwanzig Modellsätzen aufgebraucht; kombiniert reichen die Bausteine
   // für Zehntausende verschiedener Aufgabenstellungen.
-  const aspekte = pick(rand, ASPEKTE, 6);
+  // Fachliche Streitpunkte für Lesen, alltagsnahe für Sprechen und Schreiben 1.
+  const aspekte = pick(rand, ASPEKTE, 2);
+  const alltagsaspekte = pick(rand, ALLTAGSASPEKTE, 4);
 
   const z1 = pick(rand, ZUGRIFF_LESEN_1)[0];
   const wendepunkt = pick(rand, WENDEPUNKTE)[0];
@@ -200,11 +208,11 @@ export function buildGeneratorPrompt(
     { label: "Lesen Teil 2", thema: `${b2} – wie sich ${faktor} auf ${wirkung} auswirkt` },
     { label: "Lesen Teil 3", thema: `${b3} – ${z3} (Streitpunkt: ${aspekte[0]})` },
     { label: "Lesen Teil 4", thema: `${b4} – ${z4} (Streitpunkt: ${aspekte[1]})` },
-    { label: "Schreiben Teil 1", thema: `${b5} – ${z5} (Streitpunkt: ${aspekte[2]})` },
+    { label: "Schreiben Teil 1", thema: `${b5} – ${z5} (Streitpunkt: ${alltagsaspekte[0]})` },
     { label: "Schreiben Teil 2", thema: `${b6} – ${anlass}; Schreiben an ${adressat}` },
-    { label: "Sprechen Thema 1", thema: `${b7} – ${z7} (Streitpunkt: ${aspekte[3]})` },
-    { label: "Sprechen Thema 2", thema: `${b8} – ${z8} (Streitpunkt: ${aspekte[4]})` },
-    { label: "Sprechen Diskussion", thema: `${b9} – ${z9} (Streitpunkt: ${aspekte[5]})` },
+    { label: "Sprechen Thema 1", thema: `${b7} – ${z7} (Streitpunkt: ${alltagsaspekte[1]})` },
+    { label: "Sprechen Thema 2", thema: `${b8} – ${z8} (Streitpunkt: ${alltagsaspekte[2]})` },
+    { label: "Sprechen Diskussion", thema: `${b9} – ${z9} (Streitpunkt: ${alltagsaspekte[3]})` },
   ];
 
   const eigeneVorgabe = options.topicHint?.trim();
@@ -221,11 +229,11 @@ Wähle darin für jeden Prüfungsteil einen eigenen, deutlich unterschiedlichen 
 | Lesen Teil 2 | ${b2} | eine Untersuchung dazu, wie sich **${faktor}** auf **${wirkung}** auswirkt |
 | Lesen Teil 3 | ${b3} | ${z3}. Streitpunkt: ${aspekte[0]} |
 | Lesen Teil 4 | ${b4} | ${z4} Streitpunkt: ${aspekte[1]} |
-| Schreiben Teil 1 | ${b5} | ${z5} Streitpunkt: ${aspekte[2]} |
+| Schreiben Teil 1 | ${b5} | ${z5} Streitpunkt: ${alltagsaspekte[0]} |
 | Schreiben Teil 2 | ${b6} | ${anlass}; die Mitteilung geht an ${adressat} |
-| Sprechen Thema 1 | ${b7} | ${z7} Streitpunkt: ${aspekte[3]} |
-| Sprechen Thema 2 | ${b8} | ${z8} Streitpunkt: ${aspekte[4]} |
-| Sprechen Teil 2 | ${b9} | es wird über ${z9} gestritten; Streitpunkt: ${aspekte[5]} |
+| Sprechen Thema 1 | ${b7} | ${z7} Streitpunkt: ${alltagsaspekte[1]} |
+| Sprechen Thema 2 | ${b8} | ${z8} Streitpunkt: ${alltagsaspekte[2]} |
+| Sprechen Teil 2 | ${b9} | es wird über ${z9} gestritten; Streitpunkt: ${alltagsaspekte[3]} |
 
 So gehst du vor: Nimm den Bereich, lege den Zugriff darauf und entwickle daraus eine **konkrete** Situation – mit erfundenen Namen, Orten, Einrichtungen und Zahlen. Keine realen Firmen, keine lebenden Personen.
 
@@ -308,9 +316,15 @@ Zu **jeder** der beiden Aufgaben schreibst du eine **Musterlösung auf sicherem 
 
 ### Modul SPRECHEN – circa 20 Minuten, 20 Minuten Vorbereitungszeit
 
-**Teil 1** (circa 7 Min.) – Kurzvortrag. **Zwei** Themen zur Auswahl, jedes mit Titel (als Frage formuliert), einem Einleitungstext von zwei bis vier Sätzen und **genau vier** Inhaltspunkten. Optionale Stichpunkte im Kasten kommen in \`extra\`.
+**Teil 1** (\`durationMinutes\`: 7) – Kurzvortrag. **Zwei** Themen zur Auswahl, jedes mit Titel (als Frage formuliert), einem Einleitungstext von zwei bis vier Sätzen und **genau vier** Inhaltspunkten. Optionale Stichpunkte im Kasten kommen in \`extra\`.
+
+Die \`instruction\` endet wörtlich mit: **„Sprechen Sie circa 5 Minuten und beantworten Sie danach Fragen."** Eine andere Redezeit ist falsch – fünf Minuten Vortrag plus etwa zwei Minuten Nachfragen ergeben die sieben Minuten.
+
+Die beiden Themen bekommen **unterschiedlich gebaute** Inhaltspunkte. Steht beim ersten Thema „Beschreiben – Erläutern – Erläutern – Stellung nehmen", muss das zweite anders aufgebaut sein, etwa „Beispiel geben – dafür oder dagegen argumentieren – auf das Heimatland eingehen – Vorschlag machen".
 
 **Teil 2** (circa 5 Min.) – Diskussion zu zweit. Vorgegeben sind ein kurzer Inputtext im Stil einer Meldung (mit einer konkreten Zahl oder einem Gesetzesbezug) und **genau vier** Inhaltspunkte.
+
+Die Inhaltspunkte sind **vollständige Aufforderungssätze mit einem Verb in der Höflichkeitsform**, genau wie in Teil 1 und im Modul Schreiben: „Kommentieren Sie: Was halten Sie von …?", „Begründen Sie Ihre Haltung.", „Gehen Sie auf die Situation in Ihrem Heimatland ein.", „Einigen Sie sich auf …". Bloße Nominalgruppen wie „Bewertung des Pfandsystems" oder „Folgen für kleine Betriebe" sind falsch.
 
 ---
 
@@ -398,6 +412,9 @@ ${klischeeBlock}
 10. Absatzumbrüche innerhalb eines Strings als \`\\n\\n\`; Anführungszeichen im Deutschen als „…".
 11. Prüfe vor der Ausgabe jede Leseaufgabe noch einmal gegen den Text: Es darf nur genau eine Option richtig sein, und sie muss sich aus dem Text belegen lassen.
 12. Halte dich an die vorgegebenen Themen aus Abschnitt 1. Ein Modellsatz mit selbst gewählten Themen ist unbrauchbar.
+13. Sämtliche Inhaltspunkte in \`bullets\` sind Aufforderungssätze mit Verb („Erläutern Sie …", „Machen Sie …"), niemals Nominalgruppen – in **allen** Teilen von Schreiben und Sprechen.
+14. Die \`instruction\` von Sprechen Teil 1 endet mit „Sprechen Sie circa 5 Minuten und beantworten Sie danach Fragen."; \`durationMinutes\` ist dort 7 und in Teil 2 5.
+15. Die Themen von Sprechen und von Schreiben Teil 1 müssen **ohne Fachwissen** zu bearbeiten sein: Dort gibt es keinen Text, aus dem die Prüflinge schöpfen könnten – sie sprechen aus eigener Erfahrung. Formuliere die Frage so, dass jede erwachsene Person sie beantworten kann.
 
 ---
 

@@ -13,7 +13,13 @@
  * bei Sprachmodellen verlässlich zu denselben naheliegenden Themen.
  */
 
-/** Sachgebiete. Bewusst konkret und wenig abgegriffen. */
+/**
+ * Fachliche Sachgebiete. Bewusst konkret und wenig abgegriffen.
+ *
+ * Nur für das Modul Lesen und für Schreiben Teil 2 – also dort, wo der Text
+ * oder die Situation mitgeliefert wird. Für Aufgaben, bei denen Prüflinge aus
+ * eigenem Wissen sprechen oder argumentieren müssen, siehe ALLTAGSBEREICHE.
+ */
 export const BEREICHE: string[] = [
   "Instrumentenbau",
   "Uhrmacherei",
@@ -130,6 +136,66 @@ export const ZUGRIFF_LESEN_1: string[] = [
   "ein Betrieb, der eine Aufgabe übernimmt, die vorher die Gemeinde erledigt hat",
   "ein Zusammenschluss, der einen aufgegebenen Betrieb übernommen hat",
   "eine Organisation, die ihre Arbeit vollständig über Spenden ihrer Nutzenden trägt",
+];
+
+/**
+ * Allgemein zugängliche Themenfelder.
+ *
+ * Für Sprechen (beide Teile) und Schreiben Teil 1: Dort gibt es keinen
+ * Inputtext, aus dem sich Inhalte ziehen ließen – die Prüflinge müssen aus
+ * eigener Erfahrung argumentieren. Ein Fachgebiet wie Teichwirtschaft wäre
+ * hier unfair, weil es Vorwissen voraussetzt, das mit Sprachkompetenz nichts
+ * zu tun hat.
+ */
+export const ALLTAGSBEREICHE: string[] = [
+  "Schule und Unterricht",
+  "Prüfungen und Noten",
+  "Berufsausbildung",
+  "Studium",
+  "Weiterbildung im Erwachsenenalter",
+  "Fremdsprachen lernen",
+  "Bewerbung und Berufseinstieg",
+  "Arbeitszeit und Urlaub",
+  "Ehrenamt",
+  "Vereinsleben",
+  "Nachbarschaft",
+  "Wohnungssuche und Miete",
+  "Zusammenleben in der Stadt",
+  "Leben auf dem Land",
+  "Nahverkehr",
+  "Radverkehr",
+  "Führerschein und Autofahren",
+  "Reisen und Urlaub",
+  "Museen und Ausstellungen",
+  "Theater und Konzerte",
+  "Bibliotheken",
+  "Lesen und Bücher",
+  "Musik im Alltag",
+  "Sport und Bewegung",
+  "Vereinssport für Kinder",
+  "Ernährung und Kochen",
+  "Essen außer Haus",
+  "Wochenmärkte und Einkaufen",
+  "Reparieren statt Wegwerfen",
+  "Werbung im Alltag",
+  "Haustiere",
+  "Gärten und Parks",
+  "Müll und Wertstoffe",
+  "Wasserverbrauch im Haushalt",
+  "Lärm in Wohngebieten",
+  "Feste und Feiertage",
+  "Sonntagsruhe",
+  "Gesundheitsvorsorge",
+  "Arztbesuche und Wartezeiten",
+  "Pflege älterer Angehöriger",
+  "Kinderbetreuung",
+  "Familienalltag",
+  "Umgang mit Geld und Sparen",
+  "Behördengänge",
+  "Nachbarschaftshilfe",
+  "Wohnen im Alter",
+  "Freiwilligendienste",
+  "Umgang mit Fehlern im Beruf",
 ];
 
 /**
@@ -457,4 +523,38 @@ export const WENDEPUNKTE: string[] = [
   "seit einer Spendenkampagne der eigenen Kundschaft",
   "nach einem Fund alter Unterlagen im Archiv",
   "seit die Nachfrage unerwartet stark gestiegen ist",
+];
+
+/**
+ * Streitpunkte für die Alltagsthemen. ASPEKTE ist auf Betriebe und
+ * Einrichtungen zugeschnitten („Nachfolge in der Leitung") und ergäbe bei
+ * einem Thema wie „Wasserverbrauch im Haushalt" Unsinn.
+ */
+export const ALLTAGSASPEKTE: string[] = [
+  "die Kosten für Familien",
+  "der Zugang für alle, unabhängig vom Einkommen",
+  "Altersgrenzen",
+  "Pflicht oder Freiwilligkeit",
+  "die Rücksicht auf Nachbarn",
+  "der Zeitaufwand",
+  "die Verteilung knapper Plätze",
+  "die Sicherheit",
+  "wie Betroffene informiert werden",
+  "wie Betroffene mitreden können",
+  "Ausnahmen für bestimmte Gruppen",
+  "wer die Einhaltung kontrolliert",
+  "der Unterschied zwischen Stadt und Land",
+  "die Belastung für Berufstätige",
+  "was Kinder davon haben",
+  "was ältere Menschen davon haben",
+  "die Eigenverantwortung des Einzelnen",
+  "die Rolle der Gemeinde",
+  "Lärm und Ruhezeiten",
+  "die Folgen für kleine Anbieter",
+  "wie lange eine Regel gelten soll",
+  "ob Ausnahmen begründet werden müssen",
+  "die Gerechtigkeit gegenüber denen, die sich daran halten",
+  "der Aufwand für die Verwaltung",
+  "was passiert, wenn sich niemand daran hält",
+  "die Wirkung auf das Zusammenleben im Viertel",
 ];

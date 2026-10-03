@@ -118,6 +118,15 @@ openssl rand -hex 32
    > durch, drei Achsen sind es praktisch nie. Gemessen über 150 Auslosungen in Folge gab es
    > in keinem einzigen Prüfungsteil eine Wiederholung.
    >
+   > **Fachgebiete nur dort, wo ein Text mitgeliefert wird.** Für Lesen und für Schreiben
+   > Teil 2 wird aus 83 teils speziellen Sachgebieten gezogen (Imkerei, Archivwesen,
+   > Restaurierung …) – dort liefert der Text oder die Situation alles Nötige. Für Sprechen
+   > und Schreiben Teil 1 stammen die Themen dagegen aus 48 allgemein zugänglichen Feldern
+   > (Nahverkehr, Nachbarschaft, Prüfungen …), denn dort gibt es keinen Inputtext: Die
+   > Prüflinge argumentieren aus eigener Erfahrung, und ein Fachgebiet würde Vorwissen
+   > prüfen statt Sprachkompetenz. Die Streitpunkte sind aus demselben Grund doppelt
+   > vorhanden (`ASPEKTE` und `ALLTAGSASPEKTE`).
+   >
    > Warum das überhaupt im Code passiert und nicht im Prompt: Ein gleichbleibender Prompt führt
    > bei Sprachmodellen verlässlich zu denselben naheliegenden Themen. Aus demselben Grund wird
    > die gewählte Vorlage nur **vermessen** (Textlängen, Absatzzahlen, Machart der Items) statt
