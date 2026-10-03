@@ -1,4 +1,4 @@
-import type { Exam, LesenPart } from "./types";
+import type { Exam } from "./types";
 import {
   ABGENUTZTE_THEMEN,
   ADRESSAT_SCHREIBEN_2,
@@ -19,8 +19,6 @@ import {
 } from "./topic-pools";
 
 export interface GeneratorOptions {
-  /** Eigene Themenvorgabe. Ersetzt die Zufallsauswahl vollständig. */
-  topicHint?: string;
   /** Macht die Auswahl reproduzierbar. Ohne Angabe wird jedes Mal neu gewürfelt. */
   seed?: number;
   /** Alle vorhandenen Modellsätze – ihre Themen landen auf der Sperrliste. */
@@ -58,86 +56,6 @@ function pick<T>(rand: () => number, pool: T[], count = 1, used = new Set<T>()):
   return gezogen;
 }
 
-function countWords(text: string) {
-  return text.trim().split(/\s+/).filter(Boolean).length;
-}
-
-function partWords(part: LesenPart): number {
-  if (part.type === "match-source") {
-    return Math.round(part.sources.reduce((sum, s) => sum + countWords(s.text), 0) / part.sources.length);
-  }
-  return countWords(part.text.paragraphs.join(" "));
-}
-
-/**
- * Statt den kompletten Referenzsatz mitzuschicken, wird nur sein *Maß* beschrieben:
- * Textlängen, Absatzzahlen und je ein winziges Beispiel für die Machart der Items.
- * Der vollständige Text als Kontext war der Grund, warum Modelle den Referenzsatz
- * umformuliert statt einen neuen erfunden haben.
- */
-function buildStyleProfile(exam: Exam): string {
-  const zeilen: string[] = [];
-
-  for (const part of exam.lesen.parts) {
-    const woerter = partWords(part);
-    switch (part.type) {
-      case "mc-gap": {
-        const beispiel = part.items[0];
-        zeilen.push(
-          `- **Teil 1**: Fließtext mit ${woerter} Wörtern in ${part.text.paragraphs.length} Absätzen. ` +
-            `Machart der Optionen (nur als Muster für den Schwierigkeitsgrad, Inhalt nicht übernehmen): ` +
-            `${Object.values(beispiel.options).join(" / ")}.`,
-        );
-        break;
-      }
-      case "mc-questions": {
-        const beispiel = part.items[0];
-        zeilen.push(
-          `- **Teil 2**: Sachtext mit ${woerter} Wörtern in ${part.text.paragraphs.length} Absätzen. ` +
-            `Machart eines Aufgabenstamms: „${beispiel.question}" mit drei kurzen, ` +
-            `nominal formulierten Optionen.`,
-        );
-        break;
-      }
-      case "sentence-insert": {
-        const laengen = part.bank.map((b) => countWords(b.text));
-        zeilen.push(
-          `- **Teil 3**: Kommentar mit ${woerter} Wörtern in ${part.text.paragraphs.length} Absätzen. ` +
-            `Die zehn Sätze der Satzbank sind ${Math.min(...laengen)} bis ${Math.max(...laengen)} Wörter lang ` +
-            `und enthalten Rückverweise (Pronomen, „diese", „so", „denn"), über die sich die Lücke erschließt.`,
-        );
-        break;
-      }
-      case "match-source": {
-        const aussagen = part.items.map((i) => countWords(i.statement));
-        zeilen.push(
-          `- **Teil 4**: drei Beiträge von je etwa ${woerter} Wörtern. ` +
-            `Die Aussagen sind ${Math.min(...aussagen)} bis ${Math.max(...aussagen)} Wörter lang und ` +
-            `formulieren den Inhalt vollständig um, ohne ein Wort wörtlich zu übernehmen.`,
-        );
-        break;
-      }
-    }
-  }
-
-  for (const task of exam.schreiben.parts) {
-    zeilen.push(
-      `- **Schreiben Teil ${task.teil}**: Aufgabenstellung in ${countWords(task.instruction)} Wörtern, ` +
-        `vier Inhaltspunkte von je ${Math.min(...task.bullets.map(countWords))} bis ` +
-        `${Math.max(...task.bullets.map(countWords))} Wörtern, Zieltext circa ${task.wordCount} Wörter.`,
-    );
-  }
-
-  const [vortrag, diskussion] = exam.sprechen.parts;
-  zeilen.push(
-    `- **Sprechen Teil 1**: Einleitungstext je Thema circa ${countWords(vortrag.topics[0].intro)} Wörter.`,
-    `- **Sprechen Teil 2**: Inputtext circa ${countWords(diskussion.inputText)} Wörter, ` +
-      `im Ton einer knappen Meldung mit einer konkreten Zahl.`,
-  );
-
-  return zeilen.join("\n");
-}
-
 /** Themen aller vorhandenen Modellsätze – sie sind für den neuen Satz gesperrt. */
 function buildBanList(exams: Exam[]): string[] {
   const gesperrt: string[] = [];
@@ -169,11 +87,8 @@ function collectTopics(exam: Exam, gesperrt: string[]) {
  * Zweitens kommen die Themen aus dem Code und nicht aus dem Modell, denn ein
  * gleichbleibender Prompt führt sonst immer wieder zu denselben Themen.
  */
-export function buildGeneratorPrompt(
-  reference: Exam | null,
-  options: GeneratorOptions = {},
-): GeneratedPrompt {
-  const alleSaetze = options.existingExams ?? (reference ? [reference] : []);
+export function buildGeneratorPrompt(options: GeneratorOptions = {}): GeneratedPrompt {
+  const alleSaetze = options.existingExams ?? [];
   const seed = options.seed ?? Math.floor(Math.random() * 1_000_000);
   const rand = mulberry32(seed);
 
@@ -215,13 +130,7 @@ export function buildGeneratorPrompt(
     { label: "Sprechen Diskussion", thema: `${b9} – ${z9} (Streitpunkt: ${alltagsaspekte[3]})` },
   ];
 
-  const eigeneVorgabe = options.topicHint?.trim();
-
-  const auftrag = eigeneVorgabe
-    ? `Alle Texte und Aufgaben dieses Modellsatzes drehen sich um folgende Vorgabe: **${eigeneVorgabe}**
-
-Wähle darin für jeden Prüfungsteil einen eigenen, deutlich unterschiedlichen Ausschnitt, damit sich die Teile nicht ähneln.`
-    : `Für jeden Prüfungsteil sind zwei Dinge ausgelost: ein **Bereich** und ein **Zugriff**. Beide sind verbindlich. Das konkrete Thema erfindest **du** daraus – es steht absichtlich nicht hier.
+  const auftrag = `Für jeden Prüfungsteil sind zwei Dinge ausgelost: ein **Bereich** und ein **Zugriff**. Beide sind verbindlich. Das konkrete Thema erfindest **du** daraus – es steht absichtlich nicht hier.
 
 | Prüfungsteil | Bereich | Zugriff |
 |---|---|---|
@@ -243,18 +152,10 @@ Zwei Dinge sind dabei entscheidend:
 - **Bleib im Bereich.** Wenn dort „${b1}" steht, spielt der Text in genau diesem Feld und nicht in einem verwandten, das dir vertrauter vorkommt.
 - **Wenn ein Paar nicht zusammenpasst**, ist der Bereich bindend und der Zugriff verhandelbar: Verschiebe den Zugriff so weit, dass eine sinnvolle, prüfungstaugliche Frage entsteht – aber wechsle niemals den Bereich. Oft trägt eine Kombination weiter, als sie auf den ersten Blick wirkt; prüfe das erst, bevor du etwas änderst.`;
 
-  const profil = reference
-    ? `## 4. Maßvorlage aus einem bestehenden Modellsatz
-
-Die folgenden Angaben beschreiben **ausschließlich Umfang und Machart**, nicht den Inhalt. Triff diese Maße möglichst genau:
-
-${buildStyleProfile(reference)}`
-    : "";
-
   const gesperrt = buildBanList(alleSaetze);
   const banBlock =
     gesperrt.length > 0
-      ? `## 5. Gesperrte Inhalte
+      ? `## 4. Gesperrte Inhalte
 
 Diese Themen kommen in einem bereits vorhandenen Modellsatz vor. Sie dürfen **weder verwendet noch abgewandelt** werden – auch nicht mit anderer Branche, anderem Ort oder anderer Wortwahl:
 
@@ -263,7 +164,7 @@ ${gesperrt.map((t) => `- ${t}`).join("\n")}
 Wenn dir eine Idee einfällt, die einem dieser Punkte ähnelt, verwirf sie und wähle einen anderen Zugang.`
       : "";
 
-  const klischeeBlock = `## ${gesperrt.length > 0 ? "5b" : "5"}. Abgenutzte Themen
+  const klischeeBlock = `## 5. Abgenutzte Themen
 
 Die folgenden Themen wählen Sprachmodelle fast immer, wenn man sie frei entscheiden lässt. Sie sind hier **gesperrt**, auch als Nebenaspekt eines Textes:
 
@@ -302,9 +203,9 @@ Schreibe alle Texte selbst. Das heißt: eigene Fließtexte, eigene Argumente, ei
 
 **Teil 2** – Ein Sachtext von circa 550–700 Wörtern in mehreren Absätzen. Dazu sieben Aufgaben (9–15), die der Reihenfolge des Textes folgen. Jede Aufgabe hat drei Optionen. Die Aufgabenstämme sind teils Satzanfänge, die fortgesetzt werden („Den Eltern wird empfohlen, …"), teils direkte Fragen. Die Distraktoren greifen Formulierungen aus dem Text auf, treffen aber die Aussage nicht.
 
-**Teil 3** – Ein meinungsbetonter Kommentar von circa 500–600 Wörtern mit neun Satzlücken: die Beispiellücke \`[[0]]\` und \`[[16]]\` bis \`[[23]]\`. Die Satzbank enthält **genau zehn** Sätze mit den Schlüsseln \`a\` bis \`j\`; acht passen, **zwei sind Distraktoren**. Die Lücken stehen mitten im Absatz, nie am Absatzanfang; die Lösung ergibt sich aus dem Rück- und Vorwärtsbezug (Pronomen, Konnektoren, Wiederaufnahme).
+**Teil 3** – Ein meinungsbetonter Kommentar von circa 500–600 Wörtern mit neun Satzlücken: die Beispiellücke \`[[0]]\` und \`[[16]]\` bis \`[[23]]\`. Die Satzbank enthält **genau zehn** Sätze von je acht bis fünfzehn Wörtern mit den Schlüsseln \`a\` bis \`j\`; acht passen, **zwei sind Distraktoren**. Die Lücken stehen mitten im Absatz, nie am Absatzanfang; die Lösung ergibt sich aus dem Rück- und Vorwärtsbezug (Pronomen, Konnektoren, Wiederaufnahme).
 
-**Teil 4** – Drei namentlich genannte Fachleute (\`a\`, \`b\`, \`c\`) mit je einem Beitrag von circa 180–220 Wörtern zum selben Oberthema, aber mit unterschiedlichen Schwerpunkten. Dazu ein Beispiel und sieben Aussagen (24–30). Lösung ist \`a\`, \`b\`, \`c\` oder \`"0"\`, wenn die Aussage zu niemandem passt. **Genau zwei** der sieben Aussagen müssen \`"0"\` sein. Die Aussagen paraphrasieren den Beitrag, sie zitieren ihn nicht.
+**Teil 4** – Drei namentlich genannte Fachleute (\`a\`, \`b\`, \`c\`) mit je einem Beitrag von circa 180–220 Wörtern zum selben Oberthema, aber mit unterschiedlichen Schwerpunkten. Dazu ein Beispiel und sieben Aussagen (24–30) von je acht bis zwölf Wörtern. Lösung ist \`a\`, \`b\`, \`c\` oder \`"0"\`, wenn die Aussage zu niemandem passt. **Genau zwei** der sieben Aussagen müssen \`"0"\` sein. Die Aussagen paraphrasieren den Beitrag, sie zitieren ihn nicht – kein Wort wird wörtlich übernommen.
 
 ### Modul SCHREIBEN – 75 Minuten, zwei Aufgaben
 
@@ -316,13 +217,13 @@ Zu **jeder** der beiden Aufgaben schreibst du eine **Musterlösung auf sicherem 
 
 ### Modul SPRECHEN – circa 20 Minuten, 20 Minuten Vorbereitungszeit
 
-**Teil 1** (\`durationMinutes\`: 7) – Kurzvortrag. **Zwei** Themen zur Auswahl, jedes mit Titel (als Frage formuliert), einem Einleitungstext von zwei bis vier Sätzen und **genau vier** Inhaltspunkten. Optionale Stichpunkte im Kasten kommen in \`extra\`.
+**Teil 1** (\`durationMinutes\`: 7) – Kurzvortrag. **Zwei** Themen zur Auswahl, jedes mit Titel (als Frage formuliert), einem Einleitungstext von zwei bis vier Sätzen (circa 35 Wörter) und **genau vier** Inhaltspunkten. Optionale Stichpunkte im Kasten kommen in \`extra\`.
 
 Die \`instruction\` endet wörtlich mit: **„Sprechen Sie circa 5 Minuten und beantworten Sie danach Fragen."** Eine andere Redezeit ist falsch – fünf Minuten Vortrag plus etwa zwei Minuten Nachfragen ergeben die sieben Minuten.
 
 Die beiden Themen bekommen **unterschiedlich gebaute** Inhaltspunkte. Steht beim ersten Thema „Beschreiben – Erläutern – Erläutern – Stellung nehmen", muss das zweite anders aufgebaut sein, etwa „Beispiel geben – dafür oder dagegen argumentieren – auf das Heimatland eingehen – Vorschlag machen".
 
-**Teil 2** (circa 5 Min.) – Diskussion zu zweit. Vorgegeben sind ein kurzer Inputtext im Stil einer Meldung (mit einer konkreten Zahl oder einem Gesetzesbezug) und **genau vier** Inhaltspunkte.
+**Teil 2** (circa 5 Min.) – Diskussion zu zweit. Vorgegeben sind ein kurzer Inputtext im Stil einer Meldung (circa 40 Wörter, mit einer konkreten Zahl oder einem Gesetzesbezug) und **genau vier** Inhaltspunkte.
 
 Die Inhaltspunkte sind **vollständige Aufforderungssätze mit einem Verb in der Höflichkeitsform**, genau wie in Teil 1 und im Modul Schreiben: „Kommentieren Sie: Was halten Sie von …?", „Begründen Sie Ihre Haltung.", „Gehen Sie auf die Situation in Ihrem Heimatland ein.", „Einigen Sie sich auf …". Bloße Nominalgruppen wie „Bewertung des Pfandsystems" oder „Folgen für kleine Betriebe" sind falsch.
 
@@ -391,8 +292,6 @@ Die Inhaltspunkte sind **vollständige Aufforderungssätze mit einem Verb in der
   }
 }
 \`\`\`
-
-${profil}
 
 ${banBlock}
 

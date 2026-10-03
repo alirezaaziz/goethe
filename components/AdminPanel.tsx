@@ -345,8 +345,6 @@ function ExamManager({
 /* ------------------------------------------------------------------ */
 
 function PromptTab({ exams }: { exams: Exam[] }) {
-  const [referenceId, setReferenceId] = useState(exams[0]?.id ?? "");
-  const [hint, setHint] = useState("");
   const [prompt, setPrompt] = useState("");
   const [themen, setThemen] = useState<Array<{ label: string; thema: string }>>([]);
   const [seed, setSeed] = useState<number | null>(null);
@@ -359,8 +357,6 @@ function PromptTab({ exams }: { exams: Exam[] }) {
       setLoading(true);
       try {
         const url = new URL("/api/admin/prompt", window.location.origin);
-        if (referenceId) url.searchParams.set("referenz", referenceId);
-        if (hint.trim()) url.searchParams.set("themen", hint.trim());
         if (keepSeed !== null) url.searchParams.set("seed", String(keepSeed));
         const res = await fetch(url);
         const data = await readJson<{
@@ -379,16 +375,14 @@ function PromptTab({ exams }: { exams: Exam[] }) {
         setLoading(false);
       }
     },
-    [hint, referenceId],
+    [],
   );
 
   useEffect(() => {
-    void load(seed);
-    // Beim Wechsel der Stilvorlage nur neu bauen, die Themen aber behalten.
+    void load(null);
+    // Beim ersten Öffnen einmal auslosen.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [referenceId]);
-
-  const eigeneThemen = hint.trim().length > 0;
+  }, []);
 
   return (
     <section className="card p-5">
@@ -399,52 +393,21 @@ function PromptTab({ exams }: { exams: Exam[] }) {
         Lesen-Lösungen und der Musterlösungen für das Modul Schreiben.
       </p>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <div>
-          <label className="label" htmlFor="referenz">
-            Maßvorlage
-          </label>
-          <select
-            id="referenz"
-            className="select"
-            value={referenceId}
-            onChange={(event) => setReferenceId(event.target.value)}
-          >
-            <option value="">ohne Vorlage (nur Formatbeschreibung)</option>
-            {exams.map((exam) => (
-              <option key={exam.id} value={exam.id}>
-                {exam.title}
-              </option>
-            ))}
-          </select>
-          <p className="mt-1 text-xs text-[var(--muted)]">
-            Aus dem gewählten Satz werden nur Textlängen und Machart übernommen, keine Inhalte.
-            Seine Themen werden ausdrücklich gesperrt.
-          </p>
-        </div>
-        <div>
-          <label className="label" htmlFor="themen">
-            Eigene Themenvorgabe (optional)
-          </label>
-          <input
-            id="themen"
-            className="input"
-            placeholder="leer lassen, dann werden Themen ausgelost"
-            value={hint}
-            onChange={(event) => setHint(event.target.value)}
-          />
-          <div className="mt-2 flex flex-wrap gap-2">
-            <button className="btn" type="button" onClick={() => load(null)} disabled={loading}>
-              {loading ? "Wird erzeugt …" : eigeneThemen ? "Prompt aktualisieren" : "Neue Themen auslosen"}
-            </button>
-            {seed !== null && !eigeneThemen && (
-              <span className="chip tabular-nums">Auftrag {seed}</span>
-            )}
-          </div>
-        </div>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <button className="btn" type="button" onClick={() => load(null)} disabled={loading}>
+          {loading ? "Wird erzeugt …" : "Neue Themen auslosen"}
+        </button>
+        {seed !== null && <span className="chip tabular-nums">Auftrag {seed}</span>}
+        {exams.length > 0 && (
+          <span className="text-xs text-[var(--muted)]">
+            Die Themen der{" "}
+            {exams.length === 1 ? "vorhandenen Satzes" : `${exams.length} vorhandenen Sätze`} sind
+            gesperrt.
+          </span>
+        )}
       </div>
 
-      {themen.length > 0 && !eigeneThemen && (
+      {themen.length > 0 && (
         <div className="mt-4 rounded-lg border bg-[var(--surface-2)] p-3">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
             Ausgeloste Themen dieses Prompts

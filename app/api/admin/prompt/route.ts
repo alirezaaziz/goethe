@@ -12,21 +12,12 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
-  const referenceId = url.searchParams.get("referenz");
-  const hint = url.searchParams.get("themen") ?? undefined;
   const rawSeed = url.searchParams.get("seed");
   const seed = rawSeed !== null && /^\d+$/.test(rawSeed) ? Number(rawSeed) : undefined;
 
   try {
-    // Alle Sätze werden geladen: einer dient als Maßvorlage, die Themen
-    // sämtlicher Sätze landen auf der Sperrliste.
-    const alle = await listExams();
-    const reference = referenceId ? (alle.find((e) => e.id === referenceId) ?? null) : null;
-    const result = buildGeneratorPrompt(reference, {
-      topicHint: hint,
-      seed,
-      existingExams: alle,
-    });
+    // Die Themen aller vorhandenen Sätze landen auf der Sperrliste.
+    const result = buildGeneratorPrompt({ seed, existingExams: await listExams() });
     return NextResponse.json(result);
   } catch (error) {
     const message =

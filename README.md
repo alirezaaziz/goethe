@@ -98,7 +98,9 @@ openssl rand -hex 32
 2. Reiter **„Prompt für neue Modellsätze"**. Die Themen für alle neun Aufgabenteile werden
    dort **ausgelost** und im Prompt als verbindliche Vorgabe mitgegeben; die Auswahl steht
    sichtbar über dem Prompt. Gefällt sie nicht, genügt ein Klick auf **„Neue Themen auslosen"**.
-   Eine eigene Themenvorgabe im Feld daneben schaltet das Auslosen ab.
+   Die Auslosung lässt sich nicht übergehen: Eine einzelne Themenvorgabe für den ganzen Satz
+   würde alle neun Teile auf ein Feld zwingen – in der echten Prüfung sind sie thematisch
+   unabhängig – und zugleich die Trennung in Fach- und Alltagsbereiche aushebeln.
 
    > Wie die Auslosung funktioniert: Gezogen wird kein fertiges Thema, sondern je Prüfungsteil
    > **drei Achsen**, aus denen das Sprachmodell das konkrete Thema selbst entwickelt:
@@ -128,10 +130,12 @@ openssl rand -hex 32
    > vorhanden (`ASPEKTE` und `ALLTAGSASPEKTE`).
    >
    > Warum das überhaupt im Code passiert und nicht im Prompt: Ein gleichbleibender Prompt führt
-   > bei Sprachmodellen verlässlich zu denselben naheliegenden Themen. Aus demselben Grund wird
-   > die gewählte Vorlage nur **vermessen** (Textlängen, Absatzzahlen, Machart der Items) statt
-   > im Volltext mitgeschickt – ein vollständiger Beispielsatz im Kontext führt dazu, dass
-   > Modelle ihn umformulieren, statt etwas Neues zu schreiben.
+   > bei Sprachmodellen verlässlich zu denselben naheliegenden Themen.
+   >
+   > Ein vorhandener Modellsatz wird dem Prompt **nicht** beigelegt – weder im Volltext noch
+   > vermessen. Ein Beispielsatz im Kontext führt dazu, dass Modelle ihn umformulieren statt
+   > etwas Neues zu schreiben, und sämtliche Maße stehen ohnehin schon als feste Vorgaben in
+   > der Formatbeschreibung des Prompts.
    >
    > Zusätzlich gesperrt werden die Themen **aller** bereits gespeicherten Modellsätze sowie eine
    > Liste abgenutzter Themen (Nachhaltigkeit, KI, Homeoffice …), zu denen Sprachmodelle ohne
